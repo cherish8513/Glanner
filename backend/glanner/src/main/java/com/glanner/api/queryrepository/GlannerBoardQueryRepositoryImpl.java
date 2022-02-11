@@ -1,6 +1,5 @@
 package com.glanner.api.queryrepository;
 
-import com.glanner.api.dto.request.SearchBoardReqDto;
 import com.glanner.api.dto.response.FindGlannerBoardResDto;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -9,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.glanner.core.domain.glanner.QGlannerBoard.glannerBoard;
 
@@ -21,24 +19,15 @@ public class GlannerBoardQueryRepositoryImpl implements GlannerBoardQueryReposit
     private final JPAQueryFactory query;
 
     @Override
-    public Optional<FindGlannerBoardResDto> findById(Long id) {
-        return Optional.ofNullable(query
-                .select(Projections.constructor(FindGlannerBoardResDto.class,
-                        glannerBoard.title,
-                        glannerBoard.content,
-                        glannerBoard.count))
-                .from(glannerBoard)
-                .where(glannerBoard.id.eq(id))
-                .fetchOne());
-    }
-
-    @Override
     public List<FindGlannerBoardResDto> findPage(Long glannerId, int offset, int limit) {
         return query
                 .select(Projections.constructor(FindGlannerBoardResDto.class,
+                        glannerBoard.id,
+                        glannerBoard.user.name,
                         glannerBoard.title,
                         glannerBoard.content,
-                        glannerBoard.count))
+                        glannerBoard.count,
+                        glannerBoard.createdDate))
                 .from(glannerBoard)
                 .where(glannerBoard.glanner.id.eq(glannerId))
                 .orderBy(glannerBoard.createdDate.desc())
@@ -48,15 +37,18 @@ public class GlannerBoardQueryRepositoryImpl implements GlannerBoardQueryReposit
     }
 
     @Override
-    public List<FindGlannerBoardResDto> findByKeyWord(Long glannerId, int offset, int limit, SearchBoardReqDto reqDto) {
+    public List<FindGlannerBoardResDto> findPageWithKeyword(Long glannerId, int offset, int limit, String keyword) {
         return query
                 .select(Projections.constructor(FindGlannerBoardResDto.class,
+                        glannerBoard.id,
+                        glannerBoard.user.name,
                         glannerBoard.title,
                         glannerBoard.content,
-                        glannerBoard.count))
+                        glannerBoard.count,
+                        glannerBoard.createdDate))
                 .from(glannerBoard)
                 .where(glannerBoard.glanner.id.eq(glannerId)
-                        .and((glannerBoard.title.contains(reqDto.getKeyWord()).or(glannerBoard.content.contains(reqDto.getKeyWord())))))
+                        .and((glannerBoard.title.contains(keyword).or(glannerBoard.content.contains(keyword)))))
                 .orderBy(glannerBoard.createdDate.desc())
                 .offset(offset)
                 .limit(limit)

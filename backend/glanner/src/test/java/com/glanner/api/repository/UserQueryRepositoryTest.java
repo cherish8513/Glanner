@@ -14,9 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -25,9 +25,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @Transactional
 public class UserQueryRepositoryTest {
-    @Autowired
-    private EntityManager em;
-
     @Autowired
     private UserRepository userRepository;
 
@@ -38,7 +35,7 @@ public class UserQueryRepositoryTest {
     public void init(){
         createUser();
         for (int i = 0; i < 20; i++) {
-        addWorks(LocalDateTime.now().plusDays(i), LocalDateTime.now().plusDays(i).plusHours(3 + i));
+        addWorks(LocalDateTime.of(2022, Month.FEBRUARY, 1, 0, 1).plusDays(i), LocalDateTime.now().plusDays(i).plusHours(3 + i));
         }
     }
 
@@ -46,7 +43,7 @@ public class UserQueryRepositoryTest {
     @Test
     public void testFindThisMonthPlan() throws Exception{
         //given
-        String format = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
+        String format = LocalDateTime.of(2022, Month.FEBRUARY, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM"));
         format += "-01";
         LocalDateTime start = LocalDate.parse(format, DateTimeFormatter.ofPattern("yyyy-MM-dd")).atStartOfDay();
         LocalDateTime end = start.plusMonths(1);
@@ -72,8 +69,6 @@ public class UserQueryRepositoryTest {
                 .build();
         user.changeSchedule(schedule);
         userRepository.save(user);
-        em.flush();
-        em.clear();
     }
 
     private void addWorks(LocalDateTime now, LocalDateTime plusHours) {

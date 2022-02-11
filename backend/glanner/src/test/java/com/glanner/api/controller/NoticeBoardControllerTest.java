@@ -3,8 +3,13 @@ package com.glanner.api.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.glanner.api.dto.request.SearchBoardReqDto;
-import com.glanner.api.dto.response.FindNoticeBoardResDto;
+import com.glanner.api.dto.response.FindCommentResDto;
+import com.glanner.api.dto.response.FindNoticeBoardWithCommentResDto;
 import com.glanner.api.queryrepository.NoticeBoardQueryRepository;
+import com.glanner.api.service.NoticeBoardService;
+import com.glanner.core.domain.board.NoticeBoard;
+import com.glanner.core.domain.user.User;
+import com.glanner.core.domain.user.UserRoleStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +21,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -33,21 +39,29 @@ public class NoticeBoardControllerTest {
     private MockMvc mockMvc;
     @MockBean
     private NoticeBoardQueryRepository queryRepository;
+    @MockBean
+    private NoticeBoardService noticeBoardService;
     private final String userEmail = "cherish8514@naver.com";
 
     @Test
     public void testFindBoardOne() throws Exception{
         //given
         Long boardId = 1L;
-        FindNoticeBoardResDto noticeBoardResDto = new FindNoticeBoardResDto("title", "content", 0);
+        NoticeBoard noticeBoard = NoticeBoard.boardBuilder()
+                .user(new User("name", "email", "password", "phoneNumber", UserRoleStatus.ROLE_USER))
+                .title("title")
+                .content("content")
+                .build();
+        List<FindCommentResDto> commentResDtos = new ArrayList<>();
+        FindNoticeBoardWithCommentResDto boardResDto = new FindNoticeBoardWithCommentResDto(noticeBoard, commentResDtos);
 
         //when
-        when(queryRepository.findById(boardId)).thenReturn(Optional.of(noticeBoardResDto));
+        when(noticeBoardService.getNotice(boardId)).thenReturn(boardResDto);
         mockMvc.perform(get("/api/notice/{id}", boardId))
 
                 //then
                 .andExpect(status().isOk());
-        verify(queryRepository, times(1)).findById(boardId);
+        verify(noticeBoardService, times(1)).getNotice(boardId);
     }
 
     @Test
@@ -80,7 +94,7 @@ public class NoticeBoardControllerTest {
                 .andExpect(status().isOk());
 
         verify(queryRepository, times(1))
-                .findByKeyWord(eq(page), eq(limit), any(SearchBoardReqDto.class));
+                .findPageWithKeyword(page, limit, reqDto.getKeyWord());
     }
 
     public static String asJsonString(final Object obj) {

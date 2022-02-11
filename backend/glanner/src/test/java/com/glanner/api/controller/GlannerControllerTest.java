@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.glanner.api.dto.request.AddGlannerWorkReqDto;
 import com.glanner.api.dto.request.AddUserToGlannerReqDto;
+import com.glanner.api.dto.request.ChangeGlannerNameReqDto;
 import com.glanner.api.dto.response.FindGlannerWorkResDto;
 import com.glanner.api.queryrepository.DailyWorkGlannerQueryRepository;
 import com.glanner.api.service.GlannerService;
@@ -64,6 +65,22 @@ public class GlannerControllerTest {
         //then
                 .andExpect(status().isOk());
         verify(glannerService, times(1)).deleteGlanner(any(Long.class));
+    }
+
+    @Test
+    public void testChangeGlannerName() throws Exception{
+        //given
+        ChangeGlannerNameReqDto reqDto = new ChangeGlannerNameReqDto(1L, "name");
+
+        //when
+        mockMvc.perform(put("/api/glanner/" )
+                .content(asJsonString(reqDto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+
+                //then
+                .andExpect(status().isOk());
+        verify(glannerService, times(1)).changeGlannerName(reqDto);
     }
 
     @Test

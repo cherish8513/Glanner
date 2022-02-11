@@ -39,15 +39,16 @@ public class Comment extends BaseTimeEntity {
     private Board board;
 
     @Builder
-    public Comment(String content, User user, Comment parent, Board board) {
+    public Comment(String content, User user, Comment parent) {
         this.content = content;
         this.user = user;
         this.parent = parent;
-        this.board = board;
     }
 
     public void changeContent(String content) {
         this.content = content;
     }
+
+    public void changeBoard(Board board){ this.board = board; }
 
 }

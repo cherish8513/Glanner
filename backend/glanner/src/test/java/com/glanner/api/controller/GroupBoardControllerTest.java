@@ -5,10 +5,14 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.glanner.api.dto.request.AddCommentReqDto;
 import com.glanner.api.dto.request.SaveGroupBoardReqDto;
 import com.glanner.api.dto.request.SearchBoardReqDto;
-import com.glanner.api.dto.response.FindGroupBoardResDto;
+import com.glanner.api.dto.response.FindCommentResDto;
+import com.glanner.api.dto.response.FindGroupBoardWithCommentResDto;
 import com.glanner.api.queryrepository.GroupBoardQueryRepository;
 import com.glanner.api.service.BoardService;
 import com.glanner.api.service.GroupBoardService;
+import com.glanner.core.domain.glanner.GroupBoard;
+import com.glanner.core.domain.user.User;
+import com.glanner.core.domain.user.UserRoleStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +25,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
-import java.util.Optional;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -113,16 +117,23 @@ public class GroupBoardControllerTest {
     public void testFindBoardOne() throws Exception{
         //given
         Long boardId = 1L;
-        FindGroupBoardResDto groupBoardResDto = new FindGroupBoardResDto("title", "content", 0, "#휴식#");
+        GroupBoard groupBoard = GroupBoard.boardBuilder()
+                .user(new User("name", "email", "password", "phoneNumber", UserRoleStatus.ROLE_USER))
+                .title("title")
+                .content("content")
+                .interests("interests")
+                .build();
+        List<FindCommentResDto> commentResDtos = new ArrayList<>();
+        FindGroupBoardWithCommentResDto groupBoardResDto = new FindGroupBoardWithCommentResDto(groupBoard, commentResDtos);
 
         //when
-        when(queryRepository.findById(boardId)).thenReturn(Optional.of(groupBoardResDto));
+        when(groupBoardService.getGroupBoard(boardId)).thenReturn(groupBoardResDto);
         mockMvc.perform(get("/api/group-board/{id}", boardId))
 
         //then
                 .andDo(print())
                 .andExpect(status().isOk());
-        verify(queryRepository, times(1)).findById(boardId);
+        verify(groupBoardService, times(1)).getGroupBoard(boardId);
     }
 
     @Test
@@ -156,7 +167,7 @@ public class GroupBoardControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
         verify(queryRepository, times(1))
-                .findByKeyWord(eq(page), eq(limit), any(SearchBoardReqDto.class));
+                .findPageWithKeyword(page, limit, reqDto.getKeyWord());
     }
 
 

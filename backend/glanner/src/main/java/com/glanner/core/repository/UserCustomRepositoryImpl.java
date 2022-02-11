@@ -28,7 +28,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 .leftJoin(user.schedule, schedule).fetchJoin()
                 .leftJoin(user.userGlanners, userGlanner)
                 .where(userEmailEq(email))
-                .fetchFirst());
+                .fetchOne());
     }
 
     private BooleanExpression userEmailEq(String userEmail) {

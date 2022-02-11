@@ -1,30 +1,28 @@
 package com.glanner.api.service;
 
-import com.glanner.api.dto.request.AddCommentReqDto;
-import com.glanner.api.dto.request.SaveFreeBoardReqDto;
-import com.glanner.api.dto.response.FindFreeBoardResDto;
-import com.glanner.api.queryrepository.FreeBoardQueryRepository;
-import com.glanner.core.domain.board.Board;
-import com.glanner.core.domain.board.Comment;
+import com.glanner.api.dto.request.*;
+import com.glanner.api.dto.response.FindFreeBoardWithCommentsResDto;
+import com.glanner.api.dto.response.FindGlannerBoardWithCommentsResDto;
+import com.glanner.api.dto.response.FindGroupBoardWithCommentResDto;
+import com.glanner.api.dto.response.FindNoticeBoardWithCommentResDto;
+import com.glanner.api.queryrepository.CommentQueryRepository;
 import com.glanner.core.domain.board.FreeBoard;
 import com.glanner.core.domain.board.NoticeBoard;
+import com.glanner.core.domain.glanner.GlannerBoard;
+import com.glanner.core.domain.glanner.GroupBoard;
 import com.glanner.core.domain.user.DailyWorkSchedule;
 import com.glanner.core.domain.user.Schedule;
 import com.glanner.core.domain.user.User;
 import com.glanner.core.domain.user.UserRoleStatus;
-import com.glanner.core.repository.BoardRepository;
-import com.glanner.core.repository.CommentRepository;
-import com.glanner.core.repository.FreeBoardRepository;
-import com.glanner.core.repository.UserRepository;
+import com.glanner.core.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,129 +31,38 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BoardServiceTest {
 
     @Autowired
-    BoardRepository boardRepository;
-
-    @Autowired
-    FreeBoardQueryRepository freeBoardQueryRepository;
-
+    UserRepository userRepository;
     @Autowired
     FreeBoardRepository freeBoardRepository;
+    @Autowired
+    NoticeBoardRepository noticeBoardRepository;
+    @Autowired
+    GlannerBoardRepository glannerBoardRepository;
+    @Autowired
+    GroupBoardRepository groupBoardRepository;
+    @Autowired
+    CommentQueryRepository commentQueryRepository;
 
     @Autowired
-    UserRepository userRepository;
-
+    GlannerService glannerService;
     @Autowired
-    CommentRepository commentRepository;
-
+    FreeBoardService freeBoardService;
     @Autowired
-    EntityManager em;
+    GlannerBoardService glannerBoardService;
+    @Autowired
+    GroupBoardService groupBoardService;
+    @Autowired
+    NoticeBoardService noticeBoardService;
+    @Autowired
+    BoardService boardService;
+
+    private final String userEmail = "test@test.com";
 
     @BeforeEach
     public void init(){
-        createUser();
-    }
-
-    @Test
-    public void testCreateBoard() throws Exception{
-        //given
-        User findUser = userRepository.findByEmail("cherish8513@naver.com").orElseThrow(IllegalAccessError::new);
-        SaveFreeBoardReqDto freeBoardReqDto = new SaveFreeBoardReqDto("title", "content", null);
-
-        FreeBoard freeBoard = freeBoardReqDto.toEntity(findUser);
-        NoticeBoard noticeBoard = NoticeBoard.boardBuilder().build();
-
-        //when
-        FreeBoard savedFreeBoard = boardRepository.save(freeBoard);
-        boardRepository.save(noticeBoard);
-
-        //then
-        assertThat(savedFreeBoard.getDislikeCount()).isEqualTo(0);
-        assertThat(savedFreeBoard.getLikeCount()).isEqualTo(0);
-        assertThat(savedFreeBoard.getContent()).isEqualTo("content");
-        assertThat(savedFreeBoard.getTitle()).isEqualTo("title");
-        assertThat(savedFreeBoard.getCount()).isEqualTo(0);
-    }
-
-    /**
-     * 특정 게시판에 댓글을 추가하는 서비스
-     */
-    @Test
-    public void testAddComment() throws Exception{
-        //given
-        User findUser = userRepository.findByEmail("cherish8513@naver.com").orElseThrow(IllegalAccessError::new);
-        SaveFreeBoardReqDto freeBoardReqDto1 = new SaveFreeBoardReqDto("title", "content", null);
-        FreeBoard freeBoard1 = freeBoardReqDto1.toEntity(findUser);
-        Long savedBoardId = boardRepository.save(freeBoard1).getId();
-        AddCommentReqDto addCommentReqDto = new AddCommentReqDto(savedBoardId, "content", null);
-
-        //when
-        Board board = boardRepository.findById(savedBoardId).orElseThrow(IllegalAccessError::new);
-        Comment parent = null;
-        if(addCommentReqDto.getParentId() != null){
-            parent = commentRepository.findById(addCommentReqDto.getParentId()).orElseThrow(IllegalArgumentException::new);
-        }
-        Comment comment = new Comment(addCommentReqDto.getContent(), findUser, parent, board);
-        board.addComment(comment);
-
-        //then
-        FreeBoard findFreeBoard = freeBoardRepository.findById(savedBoardId).orElseThrow(IllegalAccessError::new);
-        assertThat(findFreeBoard.getComments().size()).isEqualTo(1);
-        assertThat(findFreeBoard.getComments().get(0).getContent()).isEqualTo("content");
-        assertThat(findFreeBoard.getComments().get(0).getParent()).isEqualTo(null);
-    }
-
-
-    /**
-     * 특정 게시판의 정보를 dto로 반환하는 서비스
-     */
-    @Test
-    public void testFindBoard() throws Exception{
-        //given
-        User findUser = userRepository.findByEmail("cherish8513@naver.com").orElseThrow(IllegalAccessError::new);
-        SaveFreeBoardReqDto freeBoardReqDto1 = new SaveFreeBoardReqDto("title", "content", null);
-        FreeBoard freeBoard1 = freeBoardReqDto1.toEntity(findUser);
-        Long savedBoardId = boardRepository.save(freeBoard1).getId();
-
-        //when
-        FindFreeBoardResDto findFreeBoardResDto = freeBoardQueryRepository.findById(savedBoardId).orElseThrow(IllegalAccessError::new);
-
-        //then
-        assertThat(findFreeBoardResDto.getLikeCount()).isEqualTo(0);
-    }
-
-    /**
-     *
-     * 생성된 시간 순서로 offset과 limit으로 게시판 페이지를 가져오는 서비스
-     */
-    @Test
-    public void testFindBoards() throws Exception{
-        //given
-        User findUser = userRepository.findByEmail("cherish8513@naver.com").orElseThrow(IllegalAccessError::new);
-        SaveFreeBoardReqDto freeBoardReqDto1 = new SaveFreeBoardReqDto("title1", "content", null);
-        SaveFreeBoardReqDto freeBoardReqDto2 = new SaveFreeBoardReqDto("title2", "content", null);
-        SaveFreeBoardReqDto freeBoardReqDto3 = new SaveFreeBoardReqDto("title3", "content", null);
-        SaveFreeBoardReqDto freeBoardReqDto4 = new SaveFreeBoardReqDto("title4", "content", null);
-        FreeBoard freeBoard1 = freeBoardReqDto1.toEntity(findUser);
-        FreeBoard freeBoard2 = freeBoardReqDto2.toEntity(findUser);
-        FreeBoard freeBoard3 = freeBoardReqDto3.toEntity(findUser);
-        FreeBoard freeBoard4 = freeBoardReqDto4.toEntity(findUser);
-        boardRepository.save(freeBoard1);
-        boardRepository.save(freeBoard2);
-        boardRepository.save(freeBoard3);
-        boardRepository.save(freeBoard4);
-
-        //when
-        List<FindFreeBoardResDto> page = freeBoardQueryRepository.findPage(1, 3);
-
-        //then
-        assertThat(page.size()).isEqualTo(3);
-        assertThat(page.get(0).getTitle()).isEqualTo("title3");
-    }
-
-    public void createUser(){
         User user = User.builder()
                 .phoneNumber("010-6575-2938")
-                .email("cherish8513@naver.com")
+                .email(userEmail)
                 .name("JeongJooHeon")
                 .password("1234")
                 .role(UserRoleStatus.ROLE_USER)
@@ -173,7 +80,202 @@ public class BoardServiceTest {
         schedule.addDailyWork(workSchedule);
         user.changeSchedule(schedule);
         userRepository.save(user);
-        em.flush();
-        em.clear();
     }
+
+    /**
+     * 게시판 생성 테스트
+     */
+    @Test
+    public void testCreateBoard() throws Exception{
+        //given
+        Long savedGlannerId = glannerService.saveGlanner(userEmail);
+        SaveFreeBoardReqDto freeBoardReqDto1 = new SaveFreeBoardReqDto("title", "content", new ArrayList<>());
+        SaveGroupBoardReqDto groupBoardReqDto = new SaveGroupBoardReqDto("title", "content", new ArrayList<>(), "interests");
+        SaveGlannerBoardReqDto glannerBoardReqDto = new SaveGlannerBoardReqDto("title", "content", new ArrayList<>(), savedGlannerId);
+        SaveNoticeBoardReqDto noticeBoardReqDto = new SaveNoticeBoardReqDto("title", "content", new ArrayList<>());
+
+        //when
+        Long freeBoardId = boardService.saveBoard(userEmail, freeBoardReqDto1);
+        Long groupBoardId = boardService.saveBoard(userEmail, groupBoardReqDto);
+        Long glannerBoardId = boardService.saveBoard(userEmail, glannerBoardReqDto);
+        Long noticeId = boardService.saveBoard(userEmail, noticeBoardReqDto);
+
+        //then
+        assertThat(freeBoardId).isNotNull();
+        assertThat(groupBoardId).isNotNull();
+        assertThat(glannerBoardId).isNotNull();
+        assertThat(noticeId).isNotNull();
+    }
+
+    /**
+     * 게시판 수정 테스트
+     */
+    @Test
+    public void testModifyBoard() throws Exception{
+        //given
+        Long savedGlannerId = glannerService.saveGlanner(userEmail);
+        SaveFreeBoardReqDto freeBoardReqDto = new SaveFreeBoardReqDto("title", "content", new ArrayList<>());
+        SaveGroupBoardReqDto groupBoardReqDto = new SaveGroupBoardReqDto("title", "content", new ArrayList<>(), "interests");
+        SaveGlannerBoardReqDto glannerBoardReqDto = new SaveGlannerBoardReqDto("title", "content", new ArrayList<>(), savedGlannerId);
+        SaveNoticeBoardReqDto noticeBoardReqDto = new SaveNoticeBoardReqDto("title", "content", new ArrayList<>());
+        Long freeBoardId = boardService.saveBoard(userEmail, freeBoardReqDto);
+        Long groupBoardId = groupBoardService.saveGroupBoard(userEmail, groupBoardReqDto);
+        Long glannerBoardId = glannerBoardService.saveGlannerBoard(userEmail, glannerBoardReqDto);
+        Long noticeId = boardService.saveBoard(userEmail, noticeBoardReqDto);
+
+        SaveFreeBoardReqDto freeBoardModifyReqDto = new SaveFreeBoardReqDto("modify", "content", new ArrayList<>());
+        SaveGroupBoardReqDto groupBoardModifyReqDto = new SaveGroupBoardReqDto("title", "modify", new ArrayList<>(), "interests");
+        SaveGlannerBoardReqDto glannerBoardModifyReqDto = new SaveGlannerBoardReqDto("tt", "content", new ArrayList<>(), savedGlannerId);
+        SaveNoticeBoardReqDto noticeBoardModifyReqDto = new SaveNoticeBoardReqDto("title", "cc", new ArrayList<>());
+
+        //when
+        boardService.modifyBoard(freeBoardId, freeBoardModifyReqDto);
+        boardService.modifyBoard(groupBoardId, groupBoardModifyReqDto);
+        boardService.modifyBoard(glannerBoardId, glannerBoardModifyReqDto);
+        boardService.modifyBoard(noticeId, noticeBoardModifyReqDto);
+
+        //then
+        FreeBoard findFreeBoard = freeBoardRepository.findById(freeBoardId).orElseThrow(IllegalAccessError::new);
+        NoticeBoard findNotice = noticeBoardRepository.findById(noticeId).orElseThrow(IllegalAccessError::new);
+        GlannerBoard findGlannerBoard = glannerBoardRepository.findById(glannerBoardId).orElseThrow(IllegalAccessError::new);
+        GroupBoard findGroupBoard = groupBoardRepository.findById(groupBoardId).orElseThrow(IllegalAccessError::new);
+        assertThat(findFreeBoard.getTitle()).isEqualTo("modify");
+        assertThat(findNotice.getContent()).isEqualTo("cc");
+        assertThat(findGlannerBoard.getTitle()).isEqualTo("tt");
+        assertThat(findGroupBoard.getContent()).isEqualTo("modify");
+    }
+
+
+    /**
+     * 특정 게시판에 댓글을 추가하는 서비스
+     */
+    @Test
+    public void testAddComment() throws Exception{
+        //given
+        Long savedGlannerId = glannerService.saveGlanner(userEmail);
+        SaveFreeBoardReqDto boardReqDto1 = new SaveFreeBoardReqDto("title", "content", new ArrayList<>());
+        SaveGroupBoardReqDto boardReqDto2 = new SaveGroupBoardReqDto("title", "content", new ArrayList<>(), "null");
+        SaveNoticeBoardReqDto boardReqDto3 = new SaveNoticeBoardReqDto("title", "content", new ArrayList<>());
+        SaveGlannerBoardReqDto boardReqDto4 = new SaveGlannerBoardReqDto("title", "content", new ArrayList<>(), savedGlannerId);
+
+        Long freeBoardId = boardService.saveBoard(userEmail, boardReqDto1);
+        Long groupBoardId = groupBoardService.saveGroupBoard(userEmail, boardReqDto2);
+        Long noticeId = boardService.saveBoard(userEmail, boardReqDto3);
+        Long glannerBoardId = glannerBoardService.saveGlannerBoard(userEmail, boardReqDto4);
+        AddCommentReqDto addCommentReqDto1 = new AddCommentReqDto(freeBoardId, "content", null);
+        AddCommentReqDto addCommentReqDto2 = new AddCommentReqDto(groupBoardId, "content", null);
+        AddCommentReqDto addCommentReqDto3 = new AddCommentReqDto(noticeId, "content", null);
+        AddCommentReqDto addCommentReqDto4 = new AddCommentReqDto(glannerBoardId, "content", null);
+
+        //when
+        boardService.addComment(userEmail, addCommentReqDto1);
+        boardService.addComment(userEmail, addCommentReqDto2);
+        boardService.addComment(userEmail, addCommentReqDto3);
+        boardService.addComment(userEmail, addCommentReqDto4);
+        //then
+        FreeBoard findFreeBoard = freeBoardRepository.findById(freeBoardId).orElseThrow(IllegalAccessError::new);
+        NoticeBoard findNoticeBoard = noticeBoardRepository.findById(noticeId).orElseThrow(IllegalAccessError::new);
+        GroupBoard findGroupBoard = groupBoardRepository.findById(groupBoardId).orElseThrow(IllegalAccessError::new);
+        GlannerBoard findGlannerBoard = glannerBoardRepository.findById(glannerBoardId).orElseThrow(IllegalAccessError::new);
+
+        assertThat(findFreeBoard.getComments().size()).isEqualTo(1);
+        assertThat(findFreeBoard.getComments().get(0).getContent()).isEqualTo("content");
+        assertThat(findFreeBoard.getComments().get(0).getParent()).isEqualTo(null);
+        assertThat(findNoticeBoard.getComments().size()).isEqualTo(1);
+        assertThat(findNoticeBoard.getComments().get(0).getContent()).isEqualTo("content");
+        assertThat(findNoticeBoard.getComments().get(0).getParent()).isEqualTo(null);
+        assertThat(findGroupBoard.getComments().size()).isEqualTo(1);
+        assertThat(findGroupBoard.getComments().get(0).getContent()).isEqualTo("content");
+        assertThat(findGroupBoard.getComments().get(0).getParent()).isEqualTo(null);
+        assertThat(findGlannerBoard.getComments().size()).isEqualTo(1);
+        assertThat(findGlannerBoard.getComments().get(0).getContent()).isEqualTo("content");
+        assertThat(findGlannerBoard.getComments().get(0).getParent()).isEqualTo(null);
+    }
+
+    /**
+     * 특정 게시판의 댓글을 수정하는 서비스
+     */
+    @Test
+    public void testModifyComment() throws Exception{
+        //given
+        Long savedGlannerId = glannerService.saveGlanner(userEmail);
+        SaveFreeBoardReqDto boardReqDto1 = new SaveFreeBoardReqDto("title", "content", new ArrayList<>());
+        SaveGroupBoardReqDto boardReqDto2 = new SaveGroupBoardReqDto("title", "content", new ArrayList<>(), "null");
+        SaveNoticeBoardReqDto boardReqDto3 = new SaveNoticeBoardReqDto("title", "content", new ArrayList<>());
+        SaveGlannerBoardReqDto boardReqDto4 = new SaveGlannerBoardReqDto("title", "content", new ArrayList<>(), savedGlannerId);
+
+        Long freeBoardId = boardService.saveBoard(userEmail, boardReqDto1);
+        Long groupBoardId = groupBoardService.saveGroupBoard(userEmail, boardReqDto2);
+        Long noticeId = boardService.saveBoard(userEmail, boardReqDto3);
+        Long glannerBoardId = glannerBoardService.saveGlannerBoard(userEmail, boardReqDto4);
+        AddCommentReqDto addCommentReqDto1 = new AddCommentReqDto(freeBoardId, "content", null);
+        AddCommentReqDto addCommentReqDto2 = new AddCommentReqDto(groupBoardId, "content", null);
+        AddCommentReqDto addCommentReqDto3 = new AddCommentReqDto(noticeId, "content", null);
+        AddCommentReqDto addCommentReqDto4 = new AddCommentReqDto(glannerBoardId, "content", null);
+        boardService.addComment(userEmail, addCommentReqDto1);
+        boardService.addComment(userEmail, addCommentReqDto2);
+        boardService.addComment(userEmail, addCommentReqDto3);
+        boardService.addComment(userEmail, addCommentReqDto4);
+        Long commentId1 = commentQueryRepository.findCommentsByBoardId(freeBoardId).get(0).getCommentId();
+        Long commentId2 = commentQueryRepository.findCommentsByBoardId(groupBoardId).get(0).getCommentId();
+        Long commentId3 = commentQueryRepository.findCommentsByBoardId(noticeId).get(0).getCommentId();
+        Long commentId4 = commentQueryRepository.findCommentsByBoardId(glannerBoardId).get(0).getCommentId();
+
+        //when
+        UpdateCommentReqDto modifyCommentReqDto1 = new UpdateCommentReqDto("modify");
+        UpdateCommentReqDto modifyCommentReqDto2 = new UpdateCommentReqDto("modify");
+        UpdateCommentReqDto modifyCommentReqDto3 = new UpdateCommentReqDto("modify");
+        UpdateCommentReqDto modifyCommentReqDto4 = new UpdateCommentReqDto("modify");
+
+        boardService.modifyComment(commentId1, modifyCommentReqDto1);
+        boardService.modifyComment(commentId2, modifyCommentReqDto2);
+        boardService.modifyComment(commentId3, modifyCommentReqDto3);
+        boardService.modifyComment(commentId4, modifyCommentReqDto4);
+
+        //then
+        FreeBoard findFreeBoard = freeBoardRepository.findById(freeBoardId).orElseThrow(IllegalAccessError::new);
+        NoticeBoard findNoticeBoard = noticeBoardRepository.findById(noticeId).orElseThrow(IllegalAccessError::new);
+        GroupBoard findGroupBoard = groupBoardRepository.findById(groupBoardId).orElseThrow(IllegalAccessError::new);
+        GlannerBoard findGlannerBoard = glannerBoardRepository.findById(glannerBoardId).orElseThrow(IllegalAccessError::new);
+
+        assertThat(findFreeBoard.getComments().get(0).getContent()).isEqualTo("modify");
+        assertThat(findNoticeBoard.getComments().get(0).getContent()).isEqualTo("modify");
+        assertThat(findGroupBoard.getComments().get(0).getContent()).isEqualTo("modify");
+        assertThat(findGlannerBoard.getComments().get(0).getContent()).isEqualTo("modify");
+    }
+
+
+    /**
+     * 특정 게시판의 정보를 dto로 반환하는 서비스
+     */
+    @Test
+    public void testFindBoard() throws Exception{
+        //given
+        Long savedGlannerId = glannerService.saveGlanner(userEmail);
+        SaveFreeBoardReqDto freeBoardReqDto1 = new SaveFreeBoardReqDto("title", "content", new ArrayList<>());
+        SaveGroupBoardReqDto groupBoardReqDto = new SaveGroupBoardReqDto("title", "content", new ArrayList<>(), "interests");
+        SaveGlannerBoardReqDto glannerBoardReqDto = new SaveGlannerBoardReqDto("title", "content", new ArrayList<>(), savedGlannerId);
+        SaveNoticeBoardReqDto noticeBoardReqDto = new SaveNoticeBoardReqDto("title", "content", new ArrayList<>());
+        Long freeBoardId = boardService.saveBoard(userEmail, freeBoardReqDto1);
+        Long groupBoardId = boardService.saveBoard(userEmail, groupBoardReqDto);
+        Long glannerBoardId = glannerBoardService.saveGlannerBoard(userEmail, glannerBoardReqDto);
+        Long noticeId = boardService.saveBoard(userEmail, noticeBoardReqDto);
+
+        //when
+        FindFreeBoardWithCommentsResDto freeBoardResDto = freeBoardService.getFreeBoard(freeBoardId);
+        FindGroupBoardWithCommentResDto groupBoardResDto = groupBoardService.getGroupBoard(groupBoardId);
+        FindGlannerBoardWithCommentsResDto glannerBoardResDto = glannerBoardService.getGlannerBoard(glannerBoardId);
+        FindNoticeBoardWithCommentResDto noticeResDto = noticeBoardService.getNotice(noticeId);
+
+        //then
+        assertThat(freeBoardResDto.getLikeCount()).isEqualTo(0);
+        assertThat(groupBoardResDto.getInterests()).isEqualTo("interests");
+        assertThat(glannerBoardResDto.getGlannerId()).isNotNull();
+        assertThat(noticeResDto.getComments()).isNotNull();
+        assertThat(freeBoardResDto.getContent()).isEqualTo("content");
+        assertThat(groupBoardResDto.getContent()).isEqualTo("content");
+        assertThat(glannerBoardResDto.getContent()).isEqualTo("content");
+        assertThat(noticeResDto.getContent()).isEqualTo("content");
+    }
+
 }

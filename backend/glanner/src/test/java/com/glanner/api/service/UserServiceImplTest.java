@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 
@@ -29,9 +28,6 @@ class UserServiceImplTest {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private EntityManager em;
 
     @BeforeEach
     public void init(){
@@ -110,8 +106,6 @@ class UserServiceImplTest {
         schedule.addDailyWork(workSchedule);
         user.changeSchedule(schedule);
         userRepository.save(user);
-        em.flush();
-        em.clear();
     }
 
 }

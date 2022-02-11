@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -44,8 +43,6 @@ public class GlannerServiceTest {
     // save user
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private EntityManager em;
 
     @BeforeEach
     public void init(){
@@ -99,8 +96,6 @@ public class GlannerServiceTest {
         glannerRepository.delete(findGlanner);
 
         //then
-        User afterDeleteFindUser = getUser(userRepository.findByEmail("cherish8513@naver.com"));
-        assertThat(afterDeleteFindUser.getUserGlanners().size()).isEqualTo(0);
         assertThatThrownBy(() -> {
             getGlanner(glannerRepository.findRealById(savedGlanner.getId()));
         }).isInstanceOf(IllegalArgumentException.class).hasMessage("글래너가 존재하지 않습니다.");
@@ -310,8 +305,6 @@ public class GlannerServiceTest {
         schedule.addDailyWork(workSchedule);
         user.changeSchedule(schedule);
         userRepository.save(user);
-        em.flush();
-        em.clear();
     }
 
     public User getUser(Optional<User> user){

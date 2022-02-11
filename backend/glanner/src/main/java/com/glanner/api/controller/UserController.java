@@ -5,6 +5,7 @@ import com.glanner.api.dto.request.ChangePasswordReqDto;
 import com.glanner.api.dto.request.SaveUserReqDto;
 import com.glanner.api.dto.response.BaseResponseEntity;
 import com.glanner.api.dto.response.FindPlannerWorkResDto;
+import com.glanner.api.exception.DailyWorkNotFoundException;
 import com.glanner.api.exception.UserNotFoundException;
 import com.glanner.api.queryrepository.UserQueryRepository;
 import com.glanner.api.service.UserService;
@@ -59,7 +60,7 @@ public class UserController {
 
     @GetMapping("/planner/work/{id}")
     public ResponseEntity<FindPlannerWorkResDto> getWork(@PathVariable Long id) {
-        FindPlannerWorkResDto responseDto = userQueryRepository.findDailyWork(id).orElseThrow(IllegalArgumentException::new);
+        FindPlannerWorkResDto responseDto = userQueryRepository.findDailyWork(id).orElseThrow(DailyWorkNotFoundException::new);
         return ResponseEntity.status(200).body(responseDto);
     }
 

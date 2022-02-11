@@ -19,14 +19,17 @@ public class FreeBoard extends Board {
     private int dislikeCount;
 
     @Builder(builderMethodName = "boardBuilder")
-    public FreeBoard(String title, String content, int count, User user) {
+    public FreeBoard(String title, String content, User user) {
         super(title, content, user);
         this.likeCount = 0;
         this.dislikeCount = 0;
     }
 
-    public void updateCount(String type){
-        if(type.equals("LIKE")) this.likeCount++;
-        else if(type.equals("DISLIKE")) this.dislikeCount++;
+    public void addLike(){
+        this.likeCount++;
+    }
+
+    public void addDislike(){
+        this.dislikeCount++;
     }
 }

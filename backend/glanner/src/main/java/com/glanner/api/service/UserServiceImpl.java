@@ -4,6 +4,8 @@ import com.glanner.api.dto.request.AddPlannerWorkReqDto;
 import com.glanner.api.dto.request.ChangePasswordReqDto;
 import com.glanner.api.dto.request.SaveUserReqDto;
 import com.glanner.api.dto.response.FindPlannerWorkResDto;
+import com.glanner.api.exception.DailyWorkNotFoundException;
+import com.glanner.api.exception.DuplicateMemberException;
 import com.glanner.api.exception.UserNotFoundException;
 import com.glanner.api.queryrepository.UserQueryRepository;
 import com.glanner.core.domain.user.DailyWorkSchedule;
@@ -73,7 +75,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public void modifyWork(Long id, AddPlannerWorkReqDto requestDto) {
-        DailyWorkSchedule workSchedule = dailyWorkScheduleRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+        DailyWorkSchedule workSchedule = dailyWorkScheduleRepository.findById(id).orElseThrow(DailyWorkNotFoundException::new);
         workSchedule.changeDailyWork(
                 requestDto.getStartTime(),
                 requestDto.getEndTime(),
@@ -85,7 +87,7 @@ public class UserServiceImpl implements UserService{
 
     private void validateDuplicateMember(User user) {
         userRepository.findByEmail(user.getEmail())
-                .ifPresent(m -> {throw new IllegalStateException("이미 존재하는 회원입니다");
+                .ifPresent(m -> {throw new DuplicateMemberException();
                 });
     }
 

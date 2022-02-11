@@ -6,7 +6,7 @@ import com.glanner.api.dto.request.UpdateCommentReqDto;
 
 
 public interface BoardService {
-    void saveBoard(String userEmail, SaveBoardReqDto requestDto);
+    Long saveBoard(String userEmail, SaveBoardReqDto requestDto);
     void modifyBoard(Long boardId, SaveBoardReqDto requestDto);
     void deleteBoard(Long boardId);
     void addComment(String userEmail, AddCommentReqDto requestDto);

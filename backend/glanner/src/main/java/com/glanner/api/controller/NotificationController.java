@@ -26,11 +26,7 @@ public class NotificationController {
 
     @PostMapping("/sms")
     public ResponseEntity<BaseResponseEntity> sendSMS(@RequestBody SendSmsReqDto reqDto){
-        try {
-            notificationService.sendSms(reqDto);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        notificationService.sendSms(reqDto);
         return ResponseEntity.status(200).body(new BaseResponseEntity(200, "Success"));
     }
 

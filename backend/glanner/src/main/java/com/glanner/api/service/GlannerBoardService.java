@@ -1,7 +1,9 @@
 package com.glanner.api.service;
 
 import com.glanner.api.dto.request.SaveGlannerBoardReqDto;
+import com.glanner.api.dto.response.FindGlannerBoardWithCommentsResDto;
 
 public interface GlannerBoardService {
-    void saveGlannerBoard(String userEmail, SaveGlannerBoardReqDto reqDto);
+    FindGlannerBoardWithCommentsResDto getGlannerBoard(Long boardId);
+    Long saveGlannerBoard(String userEmail, SaveGlannerBoardReqDto reqDto);
 }

@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Optional;
 
 /**
  * *Board Controller 부모 객체로 범용적인 CRUD를 담당한다.
@@ -24,7 +23,7 @@ public class BoardController<Q extends SaveBoardReqDto> {
 
     @PostMapping
     public ResponseEntity<BaseResponseEntity> saveBoard(@RequestBody @Valid Q requestDto){
-        String userEmail = getUsername(SecurityUtils.getCurrentUsername());
+        String userEmail = SecurityUtils.getCurrentUsername().orElseThrow(UserNotFoundException::new);
         boardService.saveBoard(userEmail, requestDto);
         return ResponseEntity.status(200).body(new BaseResponseEntity(200, "Success"));
     }
@@ -43,7 +42,7 @@ public class BoardController<Q extends SaveBoardReqDto> {
 
     @PostMapping("/comment")
     public ResponseEntity<BaseResponseEntity> addComment(@RequestBody @Valid AddCommentReqDto reqDto){
-        String userEmail = getUsername(SecurityUtils.getCurrentUsername());
+        String userEmail = SecurityUtils.getCurrentUsername().orElseThrow(UserNotFoundException::new);
         boardService.addComment(userEmail, reqDto);
         return ResponseEntity.status(200).body(new BaseResponseEntity(200, "Success"));
     }
@@ -63,9 +62,5 @@ public class BoardController<Q extends SaveBoardReqDto> {
     @GetMapping("/download-file/{fileId}")
     public ResponseEntity<BaseResponseEntity> downloadFile(@PathVariable Long fileId){
         return ResponseEntity.status(200).body(new BaseResponseEntity(200, "Success"));
-    }
-
-    public String getUsername(Optional<String> username){
-        return username.orElseThrow(UserNotFoundException::new);
     }
 }

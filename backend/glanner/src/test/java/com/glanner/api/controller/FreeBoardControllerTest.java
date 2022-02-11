@@ -4,9 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.glanner.api.dto.request.SaveFreeBoardReqDto;
 import com.glanner.api.dto.request.SearchBoardReqDto;
-import com.glanner.api.dto.response.FindFreeBoardResDto;
+import com.glanner.api.dto.response.FindCommentResDto;
+import com.glanner.api.dto.response.FindFreeBoardWithCommentsResDto;
 import com.glanner.api.queryrepository.FreeBoardQueryRepository;
 import com.glanner.api.service.BoardService;
+import com.glanner.api.service.FreeBoardService;
+import com.glanner.core.domain.board.FreeBoard;
 import com.glanner.core.domain.user.Schedule;
 import com.glanner.core.domain.user.User;
 import com.glanner.core.domain.user.UserRoleStatus;
@@ -25,13 +28,14 @@ import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.test.web.servlet.MockMvc;
 
 import javax.persistence.EntityManager;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
@@ -53,6 +57,8 @@ public class FreeBoardControllerTest {
     private BoardService boardService;
     @MockBean
     private FreeBoardQueryRepository freeBoardQueryRepository;
+    @MockBean
+    private FreeBoardService freeBoardService;
 
     private final String userEmail = "cherish8514@naver.com";
 
@@ -90,19 +96,49 @@ public class FreeBoardControllerTest {
     }
 
     @Test
+    public void testAddLike() throws Exception{
+        //given
+
+        //when
+        mockMvc.perform(put("/api/free-board/like/{id}", 1L ))
+
+        //then
+                .andExpect(status().isOk());
+        verify(freeBoardService, times(1)).addLike(1L);
+    }
+
+    @Test
+    public void testAddDislike() throws Exception{
+        //given
+
+        //when
+        mockMvc.perform(put("/api/free-board/dislike/{id}", 1L ))
+
+        //then
+                .andExpect(status().isOk());
+        verify(freeBoardService, times(1)).addDislike(1L);
+    }
+
+    @Test
     public void testFindBoardOne() throws Exception{
         //given
         Long boardId = 1L;
-        FindFreeBoardResDto findFreeBoardResDto =
-                new FindFreeBoardResDto("title", "content", 0, 0, 0);
+        FreeBoard freeBoard = FreeBoard.boardBuilder()
+                .user(new User("name", "email", "password", "phoneNumber", UserRoleStatus.ROLE_USER))
+                .title("title")
+                .content("content")
+                .build();
+        List<FindCommentResDto> commentResDtos = new ArrayList<>();
+        FindFreeBoardWithCommentsResDto freeBoardResDto = new FindFreeBoardWithCommentsResDto(freeBoard, commentResDtos);
 
         //when
-        when(freeBoardQueryRepository.findById(boardId)).thenReturn(Optional.of(findFreeBoardResDto));
+        when(freeBoardService.getFreeBoard(boardId)).thenReturn(freeBoardResDto);
         mockMvc.perform(get("/api/free-board/{id}", boardId))
 
-                //then
+        //then
+                .andDo(print())
                 .andExpect(status().isOk());
-        verify(freeBoardQueryRepository, times(1)).findById(boardId);
+        verify(freeBoardService, times(1)).getFreeBoard(boardId);
     }
 
     @Test
@@ -135,7 +171,7 @@ public class FreeBoardControllerTest {
                 //then
                 .andExpect(status().isOk());
         verify(freeBoardQueryRepository, times(1))
-                .findByKeyWord(eq(page), eq(limit), any(SearchBoardReqDto.class));
+                .findPageWithKeyword(page, limit, reqDto.getKeyWord());
     }
 
     public static String asJsonString(final Object obj) {

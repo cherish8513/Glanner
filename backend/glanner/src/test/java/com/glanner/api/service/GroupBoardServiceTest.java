@@ -19,7 +19,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.EntityManager;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -40,8 +39,6 @@ public class GroupBoardServiceTest {
     private GlannerRepository glannerRepository;
     @Autowired
     private GroupBoardRepository groupBoardRepository;
-    @Autowired
-    private EntityManager em;
 
     @BeforeEach
     public void init(){
@@ -89,8 +86,6 @@ public class GroupBoardServiceTest {
         GroupBoard board = groupBoardRepository.findById(groupBoardId).orElseThrow(IllegalArgumentException::new);
         board.changeBoard(reqDto.getTitle(), reqDto.getContent(), getFileInfos(reqDto.getFiles()));
         board.changeInterests(reqDto.getInterests());
-        em.flush();
-        em.clear();
 
         //then
         GroupBoard findBoard = groupBoardRepository.findById(groupBoardId).orElseThrow(IllegalArgumentException::new);
@@ -118,8 +113,6 @@ public class GroupBoardServiceTest {
         schedule.addDailyWork(workSchedule);
         user.changeSchedule(schedule);
         userRepository.save(user);
-        em.flush();
-        em.clear();
     }
 
     private List<FileInfo> getFileInfos(List<MultipartFile> files) {

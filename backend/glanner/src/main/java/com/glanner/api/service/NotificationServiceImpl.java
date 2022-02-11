@@ -7,6 +7,9 @@ import com.glanner.api.dto.request.SendSmsApiReqDto;
 import com.glanner.api.dto.request.SendSmsReqDto;
 import com.glanner.api.dto.response.FindWorkByTimeResDto;
 import com.glanner.api.dto.response.SendSmsApiResDto;
+import com.glanner.api.exception.DailyWorkNotFoundException;
+import com.glanner.api.exception.MailNotSentException;
+import com.glanner.api.exception.SMSNotSentException;
 import com.glanner.api.queryrepository.NotificationQueryRepository;
 import com.glanner.core.domain.user.DailyWorkSchedule;
 import com.glanner.core.repository.DailyWorkScheduleRepository;
@@ -49,22 +52,23 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void sendMail(SendMailReqDto reqDto) {
-        SimpleMailMessage msg = new SimpleMailMessage();
-        msg.setTo(reqDto.getAddress());
-        msg.setSubject(reqDto.getTitle());
-        msg.setText(reqDto.getContent());
-        javaMailSender.send(msg);
+        try {
+            SimpleMailMessage msg = new SimpleMailMessage();
+            msg.setTo(reqDto.getAddress());
+            msg.setSubject(reqDto.getTitle());
+            msg.setText(reqDto.getContent());
+            javaMailSender.send(msg);
+        } catch (Exception e){
+            throw new MailNotSentException();
+        }
     }
 
     @Override
     public void sendSms(SendSmsReqDto reqDto) {
         List<SendSmsReqDto> messages = new ArrayList<>();
         messages.add(reqDto);
-        try {
-            sendSmsServer(messages);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        try { sendSmsServer(messages); }
+        catch (Exception e) { throw new SMSNotSentException(); }
     }
 
     @Override
@@ -77,12 +81,12 @@ public class NotificationServiceImpl implements NotificationService {
             List<SendSmsReqDto> messages = new ArrayList<>();
             messages.add(new SendSmsReqDto(resDto.getPhoneNumber().replace("-",""), makeContent(resDto.getTitle())));
 
-            DailyWorkSchedule schedule = dailyWorkScheduleRepository.findById(resDto.getDailyWorkId()).orElseThrow(IllegalArgumentException::new);
+            DailyWorkSchedule schedule = dailyWorkScheduleRepository.findById(resDto.getDailyWorkId()).orElseThrow(DailyWorkNotFoundException::new);
 
             schedule.changeNotiStatus();
 
             try { sendSmsServer(messages); }
-            catch (Exception e) { e.printStackTrace(); }
+            catch (Exception e) { throw new SMSNotSentException(); }
         }
     }
 

@@ -4,10 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.glanner.api.dto.request.SaveGlannerBoardReqDto;
 import com.glanner.api.dto.request.SearchBoardReqDto;
-import com.glanner.api.dto.response.FindGlannerBoardResDto;
+import com.glanner.api.dto.response.FindCommentResDto;
+import com.glanner.api.dto.response.FindGlannerBoardWithCommentsResDto;
 import com.glanner.api.queryrepository.GlannerBoardQueryRepository;
 import com.glanner.api.service.BoardService;
 import com.glanner.api.service.GlannerBoardService;
+import com.glanner.core.domain.glanner.Glanner;
+import com.glanner.core.domain.glanner.GlannerBoard;
+import com.glanner.core.domain.user.User;
+import com.glanner.core.domain.user.UserRoleStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +24,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -109,16 +115,24 @@ public class GlannerBoardControllerTest {
     @Test
     public void testFindBoard() throws Exception{
         //given
-        Long glannerBoardId = 1L;
-        FindGlannerBoardResDto resDto = new FindGlannerBoardResDto("title", "content", 1);
+        Long boardId = 1L;
+        GlannerBoard board = GlannerBoard.boardBuilder()
+                .user(new User("name", "email", "password", "phoneNumber", UserRoleStatus.ROLE_USER))
+                .title("title")
+                .content("content")
+                .glanner(new Glanner(new User("name", "email", "password", "phoneNumber", UserRoleStatus.ROLE_USER)))
+                .build();
+        List<FindCommentResDto> commentResDtos = new ArrayList<>();
+        FindGlannerBoardWithCommentsResDto boardResDto = new FindGlannerBoardWithCommentsResDto(board, commentResDtos);
+
         //when
-        when(queryRepository.findById(glannerBoardId)).thenReturn(Optional.of(resDto));
-        mockMvc.perform(get("/api/glanner-board/{id}", glannerBoardId))
+        when(glannerBoardService.getGlannerBoard(boardId)).thenReturn(boardResDto);
+        mockMvc.perform(get("/api/glanner-board/{id}", boardId))
 
                 //then
                 .andDo(print())
                 .andExpect(status().isOk());
-        verify(queryRepository, times(1)).findById(glannerBoardId);
+        verify(glannerBoardService, times(1)).getGlannerBoard(boardId);
     }
 
     @Test
@@ -138,7 +152,7 @@ public class GlannerBoardControllerTest {
                 //then
                 .andExpect(status().isOk());
         verify(queryRepository, times(1))
-                .findByKeyWord(eq(glannerId), eq(page), eq(limit), any(SearchBoardReqDto.class));
+                .findPageWithKeyword(glannerId, page, limit, reqDto.getKeyWord());
     }
 
     public static String asJsonString(final Object obj) {

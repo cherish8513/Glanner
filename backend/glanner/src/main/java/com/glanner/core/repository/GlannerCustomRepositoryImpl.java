@@ -27,12 +27,12 @@ public class GlannerCustomRepositoryImpl implements GlannerCustomRepository{
         return Optional.ofNullable(query
                 .select(glanner)
                 .from(glanner)
-                .leftJoin(glanner.host, user).fetchJoin()
+                .innerJoin(glanner.host, user).fetchJoin()
                 .leftJoin(glanner.userGlanners, userGlanner)
                 .leftJoin(glanner.glannerBoards, glannerBoard)
                 .leftJoin(glanner.works, dailyWorkGlanner)
                 .where(glanner.id.eq(id))
-                .fetchFirst());
+                .fetchOne());
     }
 
     @Override

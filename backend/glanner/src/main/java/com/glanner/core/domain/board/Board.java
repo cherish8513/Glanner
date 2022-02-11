@@ -30,10 +30,10 @@ public class Board extends BaseTimeEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "board", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "board", cascade = CascadeType.PERSIST)
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "board", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "board", cascade = CascadeType.PERSIST)
     private List<FileInfo> fileInfos = new ArrayList<>();
 
     @Builder
@@ -53,6 +53,7 @@ public class Board extends BaseTimeEntity {
 
     public void addComment(Comment comment){
         comments.add(comment);
+        comment.changeBoard(this);
     }
 
     public void deleteComment(Comment comment){

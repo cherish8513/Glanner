@@ -2,6 +2,7 @@ package com.glanner.api.controller;
 
 import com.glanner.api.dto.request.AddGlannerWorkReqDto;
 import com.glanner.api.dto.request.AddUserToGlannerReqDto;
+import com.glanner.api.dto.request.ChangeGlannerNameReqDto;
 import com.glanner.api.dto.request.UpdateGlannerWorkReqDto;
 import com.glanner.api.dto.response.BaseResponseEntity;
 import com.glanner.api.dto.response.FindAttendedGlannerResDto;
@@ -46,7 +47,11 @@ public class GlannerController {
         glannerService.deleteGlanner(id);
         return ResponseEntity.status(200).body(new BaseResponseEntity(200, "Success"));
     }
-
+    @PutMapping
+    public ResponseEntity<BaseResponseEntity> changeGlannerName(@RequestBody @Valid ChangeGlannerNameReqDto reqDto){
+        glannerService.changeGlannerName(reqDto);
+        return ResponseEntity.status(200).body(new BaseResponseEntity(200, "Success"));
+    }
     @GetMapping
     public ResponseEntity<List<FindAttendedGlannerResDto>> findGlannerList(){
         String userEmail = getUsername(SecurityUtils.getCurrentUsername());
