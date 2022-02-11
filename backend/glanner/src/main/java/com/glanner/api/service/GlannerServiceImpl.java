@@ -42,6 +42,7 @@ public class GlannerServiceImpl implements GlannerService{
 
         User findUser = userRepository.findByEmail(hostEmail).orElseThrow(UserNotFoundException::new);
         Glanner glanner = Glanner.builder()
+                .name(findUser.getName() + "님의 글래너")
                 .host(findUser)
                 .build();
 

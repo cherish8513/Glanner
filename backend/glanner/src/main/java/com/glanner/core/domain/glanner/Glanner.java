@@ -19,8 +19,9 @@ import java.util.List;
 public class Glanner extends BaseTimeEntity {
 
     @Builder
-    public Glanner(User host) {
+    public Glanner(User host, String name) {
         this.host = host;
+        this.name = name;
     }
 
     @Id @GeneratedValue

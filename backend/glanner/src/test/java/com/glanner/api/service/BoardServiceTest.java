@@ -1,10 +1,7 @@
 package com.glanner.api.service;
 
 import com.glanner.api.dto.request.*;
-import com.glanner.api.dto.response.FindFreeBoardWithCommentsResDto;
-import com.glanner.api.dto.response.FindGlannerBoardWithCommentsResDto;
-import com.glanner.api.dto.response.FindGroupBoardWithCommentResDto;
-import com.glanner.api.dto.response.FindNoticeBoardWithCommentResDto;
+import com.glanner.api.dto.response.*;
 import com.glanner.api.queryrepository.CommentQueryRepository;
 import com.glanner.core.domain.board.FreeBoard;
 import com.glanner.core.domain.board.NoticeBoard;
@@ -23,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -192,6 +190,31 @@ public class BoardServiceTest {
         assertThat(findGlannerBoard.getComments().get(0).getParent()).isEqualTo(null);
     }
 
+    /**
+     * 특정 게시판의 대댓글을 다는 서비스
+     */
+    @Test
+    public void testAddChildComment() throws Exception{
+        //given
+        SaveFreeBoardReqDto boardReqDto1 = new SaveFreeBoardReqDto("title", "content", new ArrayList<>());
+        Long freeBoardId = boardService.saveBoard(userEmail, boardReqDto1);
+        AddCommentReqDto addCommentReqDto1 = new AddCommentReqDto(freeBoardId, "content", null);
+        boardService.addComment(userEmail, addCommentReqDto1);
+        Long parentId = freeBoardService.getFreeBoard(freeBoardId).getComments().get(0).getCommentId();
+
+        //when
+        AddCommentReqDto addChildCommentReqDto = new AddCommentReqDto(freeBoardId, "child", parentId);
+        boardService.addComment(userEmail, addChildCommentReqDto);
+
+        //then
+        int childCount = 0;
+        List<FindCommentResDto> comments = freeBoardService.getFreeBoard(freeBoardId).getComments();
+        for (int i = 0; i < comments.size(); i++) {
+            if(comments.get(i).getParentId() == parentId)
+                childCount++;
+        }
+        assertThat(childCount).isEqualTo(1);
+    }
     /**
      * 특정 게시판의 댓글을 수정하는 서비스
      */

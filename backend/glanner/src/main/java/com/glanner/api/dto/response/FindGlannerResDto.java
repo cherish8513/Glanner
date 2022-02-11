@@ -15,12 +15,14 @@ import java.util.stream.Collectors;
 public class FindGlannerResDto {
     Long glannerId;
     String hostEmail;
+    String glannerName;
     int numOfMember;
     List<String> membersEmail;
 
     public FindGlannerResDto(Glanner glanner, List<UserGlanner> userGlanners){
         glannerId = glanner.getId();
         hostEmail = glanner.getHost().getEmail();
+        glannerName = glanner.getName();
         numOfMember = userGlanners.size();
         membersEmail = userGlanners.stream().map(u -> u.getUser().getEmail()).collect(Collectors.toList());
     }

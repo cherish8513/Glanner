@@ -4,6 +4,8 @@ import com.glanner.api.dto.request.AddCommentReqDto;
 import com.glanner.api.dto.request.SaveBoardReqDto;
 import com.glanner.api.dto.request.UpdateCommentReqDto;
 import com.glanner.api.dto.response.BaseResponseEntity;
+import com.glanner.api.dto.response.ModifyCommentResDto;
+import com.glanner.api.dto.response.SaveCommentResDto;
 import com.glanner.api.exception.UserNotFoundException;
 import com.glanner.api.service.BoardService;
 import com.glanner.security.SecurityUtils;
@@ -41,16 +43,16 @@ public class BoardController<Q extends SaveBoardReqDto> {
     }
 
     @PostMapping("/comment")
-    public ResponseEntity<BaseResponseEntity> addComment(@RequestBody @Valid AddCommentReqDto reqDto){
+    public ResponseEntity<SaveCommentResDto> addComment(@RequestBody @Valid AddCommentReqDto reqDto){
         String userEmail = SecurityUtils.getCurrentUsername().orElseThrow(UserNotFoundException::new);
-        boardService.addComment(userEmail, reqDto);
-        return ResponseEntity.status(200).body(new BaseResponseEntity(200, "Success"));
+        SaveCommentResDto responseDto = boardService.addComment(userEmail, reqDto);
+        return ResponseEntity.status(200).body(responseDto);
     }
 
     @PutMapping("/comment/{id}")
-    public ResponseEntity<BaseResponseEntity> modifyComment(@PathVariable Long id, @RequestBody @Valid UpdateCommentReqDto reqDto){
-        boardService.modifyComment(id, reqDto);
-        return ResponseEntity.status(200).body(new BaseResponseEntity(200, "Success"));
+    public ResponseEntity<ModifyCommentResDto> modifyComment(@PathVariable Long id, @RequestBody @Valid UpdateCommentReqDto reqDto){
+        ModifyCommentResDto responseDto = boardService.modifyComment(id, reqDto);
+        return ResponseEntity.status(200).body(responseDto);
     }
 
     @DeleteMapping("/comment/{commentId}")

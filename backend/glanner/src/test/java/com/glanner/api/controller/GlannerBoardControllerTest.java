@@ -120,7 +120,7 @@ public class GlannerBoardControllerTest {
                 .user(new User("name", "email", "password", "phoneNumber", UserRoleStatus.ROLE_USER))
                 .title("title")
                 .content("content")
-                .glanner(new Glanner(new User("name", "email", "password", "phoneNumber", UserRoleStatus.ROLE_USER)))
+                .glanner(new Glanner(new User("name", "email", "password", "phoneNumber", UserRoleStatus.ROLE_USER), "glannerName"))
                 .build();
         List<FindCommentResDto> commentResDtos = new ArrayList<>();
         FindGlannerBoardWithCommentsResDto boardResDto = new FindGlannerBoardWithCommentsResDto(board, commentResDtos);
