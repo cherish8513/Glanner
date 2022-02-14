@@ -1,8 +1,6 @@
 package com.glanner.api.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.glanner.core.domain.glanner.DailyWorkGlanner;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
@@ -24,18 +22,15 @@ public class AddGlannerWorkReqDto {
     String content;
 
     @NotNull
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     LocalDateTime startTime;
 
     @NotNull
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH-mm")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     LocalDateTime endTime;
 
     @ApiModelProperty(value = "일정 시작 시간 - 타이머 설정 시간")
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH-mm")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     LocalDateTime notiTime;
 
     public DailyWorkGlanner toEntity(){
