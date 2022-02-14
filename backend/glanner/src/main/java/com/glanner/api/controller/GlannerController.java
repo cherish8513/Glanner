@@ -14,6 +14,7 @@ import com.glanner.api.queryrepository.GlannerQueryRepository;
 import com.glanner.api.service.GlannerService;
 import com.glanner.security.SecurityUtils;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -131,8 +132,8 @@ public class GlannerController {
     @ApiOperation(value = "특정 글래너의 일정 검색", notes = "일정 시작 시간이 yyyy-mm-dd'T'HH:mm의 양식으로 받은 두 시간 사이에 속하는 일정을 가져온다.")
     @GetMapping("/work/{glannerId}/{startTime}/{endTime}")
     public ResponseEntity<List<FindGlannerWorkResDto>> findWork(@PathVariable  Long glannerId,
-                                                                @PathVariable @DateTimeFormat(pattern="yyyy-MM-dd'T'HH:mm") LocalDateTime startTime,
-                                                                @PathVariable @DateTimeFormat(pattern="yyyy-MM-dd'T'HH:mm") LocalDateTime endTime){
+                                                                @PathVariable @DateTimeFormat(pattern="yyyy-MM-dd'T'HH:mm") @ApiParam(value = "yyyy-MM-dd'T'HH:mm") LocalDateTime startTime,
+                                                                @PathVariable @DateTimeFormat(pattern="yyyy-MM-dd'T'HH:mm") @ApiParam(value = "yyyy-MM-dd'T'HH:mm") LocalDateTime endTime){
 
         List<FindGlannerWorkResDto> findGlannerWorkResDtos =
                 dailyWorkQueryRepository.findByGlannerIdWithDate(glannerId, startTime, endTime);
