@@ -54,7 +54,6 @@ export const BoardDetailPageContainer = () => {
     if (pathname.includes('/free/')) {
       axios(`/api/free-board/${id}`, {method: 'GET'})
         .then(res => {
-          console.log(res.data)
           setPost(() => res.data)
           setComments(res.data.comments.reverse())
           setPostLikeCount(res.data.likeCount)    
@@ -64,7 +63,7 @@ export const BoardDetailPageContainer = () => {
     } else if (pathname.includes('/group/')) {
       axios(`/api/group-board/${id}`, {method: 'GET'})
         .then(res => {
-          console.log(res.data)
+          // console.log(res.data)
           setPost(() => res.data)
           setComments(res.data.comments.reverse())
              
@@ -80,7 +79,7 @@ export const BoardDetailPageContainer = () => {
      .catch(err => console.log(err))   
     }
   }
-
+  
   // 해당 게시글의 좋아요 + 1
   const addLike = () => {
     // if (pathname.includes('/notice/')) {
@@ -147,7 +146,6 @@ export const BoardDetailPageContainer = () => {
         .catch((err) => console.log(err.message));
     }
   };
-
   // 댓글 && 대댓글 수정하기
   const updateComment = (commentContent, commentData) => {    
     if (pathname.includes('/free/')) {

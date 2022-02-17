@@ -352,14 +352,21 @@ export default function EventModal({
     );
   };
   const TimeToString = (Time, Minute) => {
+    var t, m;
     if (Time < 10) {
-      var t = "0" + Time;
+      t = '0' + Time;
+    }
+    else {
+      t = Time;
     }
     if (Minute < 10) {
-      var m = "0" + Minute;
+      m = '0' + Minute;
     }
-    return t + ":" + m;
-  };
+    else {
+      m = Minute;
+    }
+    return t + ':' + m;
+  }
 
   return (
     <Modal
@@ -459,6 +466,7 @@ export default function EventModal({
                   selected={StartDate}
                   onChange={(date) => setStartDate(date)}
                   dateFormat="yyyy-MM-dd(eee)"
+                  minDate={new Date()}
                 />
               </Grid>
               <Grid item xs={2}>
@@ -589,6 +597,7 @@ export default function EventModal({
                   selected={EndDate}
                   onChange={(date) => setEndDate(date)}
                   dateFormat="yyyy-MM-dd(eee)"
+                  minDate={StartDate}
                 />
               </Grid>
               <Grid item xs={2}>

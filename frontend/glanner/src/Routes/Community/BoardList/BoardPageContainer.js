@@ -18,7 +18,7 @@ export default function BoardPageContainer () {
       axios(`/api/free-board/${page}/6`, {method: 'GET'})
         .then(res => {
           setBoardList(res.data)
-          console.log(res.data)
+          // console.log(res.data)
           setLoading(false)
         })
         .catch(err => console.log(err))
@@ -41,7 +41,7 @@ export default function BoardPageContainer () {
       setPage((newPage - 1) * 9)     
     }
     const handleInput = (e) => {
-      console.log(e.target.value)
+      // console.log(e.target.value)
       setInputData(e.target.value)
     }
     const searchBoard = () => {

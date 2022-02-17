@@ -104,10 +104,10 @@ export default function BoardPagePresenter({
                 <Grid item xs={7}>
                   <ListItemText style={{fontFamily: "Noto Sans KR",}}>제목</ListItemText>
                 </Grid>
-                <Grid item xs={1.8}>
+                <Grid item xs={1.5}>
                   <ListItemText>글쓴이</ListItemText>
                 </Grid>
-                <Grid item xs={1}>
+                <Grid item xs={1.3}>
                   <ListItemText>작성일</ListItemText>
                 </Grid>
                 <Grid item xs={0.6}>
@@ -145,10 +145,10 @@ export default function BoardPagePresenter({
                             </ListItemText>
                           </Link>
                         </Grid>
-                        <Grid item xs={1.8}>
+                        <Grid item xs={1.5}>
                           <ListItemText>{userName}</ListItemText>
                         </Grid>
-                        <Grid item xs={1}>
+                        <Grid item xs={1.3}>
                           <ListItemText>
                             {getListTime(createdDate)}
                           </ListItemText>
@@ -218,10 +218,10 @@ export default function BoardPagePresenter({
                             </ListItemText>
                           </Link>
                         </Grid>
-                        <Grid item xs={1.8}>
+                        <Grid item xs={1.5}>
                           <ListItemText sx={{ mx: 3 }}>{userName}</ListItemText>
                         </Grid>
-                        <Grid item xs={1}>
+                        <Grid item xs={1.3}>
                           <ListItemText>
                             {getListTime(createdDate)}
                           </ListItemText>

@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useLocation, useParams } from "react-router-dom";
 
 import styled from "styled-components";
 
@@ -9,6 +9,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
 import { ReactComponent as CalendarIcon } from "../assets/calendar-check-solid.svg";
 import { ReactComponent as CircleUser } from "../assets/circle-user-solid.svg";
+import axios from "axios";
+import { GroupPlannerMoreBtn } from "./GroupPlannerMoreBtn";
 
 const HeaderContainer = styled.div`
   word-break: break-all;
@@ -26,7 +28,40 @@ const headerStyle = {
   alignItems: "center",
 };
 
-export default function Header({ title }) {
+export default function Header({ title, host }) {
+  const { pathname } = useLocation();
+  const [headTitle, setHeadTitle] = useState('');
+  const [hostEmail, setHostEMail] = useState('');
+  const [glannerPage, setGlannerPage] = useState(false);
+  useEffect(() => {
+    if (pathname.includes('/community/group') || pathname.includes('/board/group/')) {
+      setGlannerPage(false)
+      setHeadTitle('그룹 찾기')
+    } else if (pathname.includes('/community/free') || pathname.includes('/board/free/')) {
+      setGlannerPage(false)
+      setHeadTitle('자유 게시판')
+    } else if (pathname.includes('/community/notice') || pathname.includes('/board/notice/')) {
+      setGlannerPage(false)
+      setHeadTitle('공지 게시판')
+    } else if (pathname.includes('/group/')) {
+      const id = pathname.slice(7)
+      axios(`/api/glanner/${id}`)
+        .then(res => {
+          // console.log(res.data)
+          setHeadTitle(res.data.glannerName)
+          setHostEMail(res.data.hostEmail)
+        })
+        .catch(err => console.log(err))
+        setGlannerPage(true)
+    } else {
+      setGlannerPage(false)
+      setHeadTitle(title)
+    }
+  }, [pathname])
+
+  // 글래너 이름 변경
+
+  // 글래너 삭제
   return (
     <HeaderContainer>
       <div
@@ -40,7 +75,9 @@ export default function Header({ title }) {
           fontFamily: "Noto Sans KR",
         }}
       >
-        {title}
+        {/* {title}  */}
+        {headTitle}
+        {glannerPage && hostEmail === host && <GroupPlannerMoreBtn setHeadTitle={setHeadTitle} />}
       </div>
       <div
         style={{

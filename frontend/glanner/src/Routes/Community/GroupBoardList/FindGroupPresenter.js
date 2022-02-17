@@ -47,7 +47,7 @@ export default function FindGroupPresenter({
 }) {
   const navigator = useNavigate();  
   const classes = useStyles();
-  console.log(groupBoardList)
+  // console.log(groupBoardList)
   return (
     <>
       {loading && <div>Loading...</div>}      
@@ -109,7 +109,7 @@ export default function FindGroupPresenter({
           </FormGroup>          
         </Box>
         <Divider sx={{mb: 1, width: '88%', mx: 'auto'}} />
-        <Box className={classes.textField} sx={{ textAlign: "left", height: '500px', px: 15 }}>
+        <Box className={classes.textField} sx={{ textAlign: "left", height: 'auto', px: 15 }}>
           <Grid container rowSpacing={1.2} columnSpacing={{ xs: 1.5 }}>
           {groupBoardList && groupBoardList.map(({ boardId, title, userName, createdDate, content, userCount, interests, count, commentCount }) => (
             <Grid item xs={6} key={boardId} >
@@ -124,18 +124,18 @@ export default function FindGroupPresenter({
                             {getListTime(createdDate)}
                           </Typography>  
                         </Grid>
-                        <Typography className = 'membernum' variant="body2" sx={{mb: 1}}>
+                        <Typography className = 'membernum' variant="body2">
                         {/* <UserFriend
                           style={{
                             color: "#5F5F5F",
                           }}
                         />  */}
-                          <PeopleIcon fontSize="medium" sx={{mb: 1}} />
-                          <Box component='span' sx={{ ml: 1, fontSize: 20}}>
+                          <PeopleIcon fontSize="small" sx={{ mb: '3px'}} />
+                          <Box component='span' sx={{ ml: 1, fontSize: 15}}>
                             {userCount} / 5
                           </Box>
                         </Typography>
-                        <Typography sx={{color: '#5F5F5F', fontWeight: 800, display: '-webkit-box', overflow: 'hidden', WebkitBoxOrient: 'vertical', WebkitLineClamp: 3, my: 2, height: '20px' }} className='boardpost' variant="body2" color="text.secondary">
+                        <Typography sx={{color: '#5F5F5F', fontWeight: 800, display: '-webkit-box', overflow: 'hidden', WebkitBoxOrient: 'vertical', WebkitLineClamp: 3, my: 1, height: '20px' }} className='boardpost' variant="body2" color="text.secondary">
                           {content}
                         </Typography>
 
@@ -143,7 +143,7 @@ export default function FindGroupPresenter({
                           
                         </Typography> */}
                       </Grid>
-                    <Grid item style={{paddingTop: 10}}>   
+                    <Grid item style={{paddingTop: 5}}>   
                       <Stack spacing={1}>        
                         <Stack direction="row" spacing={0.5}>
                           {interests && interests.split('#').slice(1).map((tag, idx) => {
@@ -152,30 +152,30 @@ export default function FindGroupPresenter({
                         </Stack>
                       </Stack>
                     </Grid>
-                    <Grid style={{paddingTop: 20}} item container sx={{justifyContent: 'space-between'}}>
+                    <Grid style={{paddingTop: 8}} item container sx={{justifyContent: 'space-between'}}>
                       <Box>
                         <CircleUser
                           style={{
-                            fontSize: 25 + "px",
+                            fontSize: 15 + "px",
                             color: "#5F5F5F",
                             backgroundColor: "#F2D0D9",
                             borderRadius: "50%",
                             marginRight: 2
                           }}
                           /> 
-                        <Typography className='nickName' sx={{ fontSize: 20, cursor: 'pointer', mx: 0.5 }} component='span'>
+                        <Typography className='nickName' sx={{ fontSize: 14, cursor: 'pointer', mx: 0.5 }} component='span'>
                           {userName}
                         </Typography>
                       </Box>
                       <Box sx={{color: '#808080'}}>
                         <Typography component='span' sx={{mx: 1}}>
-                          <VisibilityOutlinedIcon sx={{transform: 'scale(0.7)'}} />
-                          {count}
+                          <VisibilityOutlinedIcon sx={{transform: 'scale(0.6)'}} />
+                          <span style={{ fontSize: '14px'}}>{count}</span>
                         </Typography>
                         <Typography component='span'>
 
-                          <ChatBubbleOutlineOutlinedIcon sx={{transform: 'scale(0.7)'}} />
-                          {commentCount}
+                          <ChatBubbleOutlineOutlinedIcon sx={{transform: 'scale(0.6)'}} />
+                          <span style={{ fontSize: '14px'}}>{commentCount}</span>
                         </Typography>                
                       </Box>                      
                     </Grid>
@@ -212,7 +212,7 @@ export default function FindGroupPresenter({
             >글쓰기</Button>
           </Link>
           <Stack alignItems={'center'} spacing={2} sx={{mb: 10}}>
-            <Pagination onChange={e => {handleChangePage(e.target.innerText); console.log(e.target.innerText)}} count={5} size="large"/>      
+            <Pagination onChange={e => {handleChangePage(e.target.innerText)}} count={5} size="large"/>      
           </Stack>
         </div>
       </Box>}

@@ -54,7 +54,7 @@ export const GroupFormPageContainer = () => {
       alert('관심사를 입력해주세요.')
       return
     }
-    console.log(tagItems)    
+    // console.log(tagItems)    
     // 기존 글을 수정하는 로직
     if (state) {
       let tagString = ''
@@ -82,7 +82,7 @@ export const GroupFormPageContainer = () => {
       })
         .then(res => {
           alert('수정 성공!')
-          console.log(res.data)
+          // console.log(res.data)
           // navigate(`/board/group/${res.data.boardId}`)
           navigate(`/community/group`)
         })

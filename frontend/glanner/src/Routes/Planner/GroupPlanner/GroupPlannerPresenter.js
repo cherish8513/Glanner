@@ -19,7 +19,7 @@ import momentPlugin from "@fullcalendar/moment";
 import monthName from "../../../store/monthName";
 import AddEventModal from "../Modal/AddEventModal";
 import { Link, useNavigate } from "react-router-dom";
-import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import {MenuItem, Menu, } from "@mui/material";
 import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
 import EventModal from "../Modal/EventModal";
@@ -188,7 +188,7 @@ const latestWrite = [
 ];
 
 function renderEventContent(events) {
-  console.log(events);
+  // console.log(events);
   return (
     <div style={{ textAlign: "left", marginLeft: "5px" }}>
       <FontAwesomeIcon
@@ -360,7 +360,7 @@ export default function GroupPlannerPresenter({
                       {membersInfos && membersInfos.map((info, idx) => {
                         return <MenuItem key={idx} sx={{width: 200, display: 'flex', justifyContent: 'space-between'}}>
                           {info.userName} 
-                          {authData.sub === hostEmail && <HighlightOffIcon onClick={() => {popupState.close(); deleteMember(info.userName, info.userId)}} />}
+                          {authData.sub === hostEmail && authData.sub !== info.userEmail && <PersonRemoveIcon onClick={() => {popupState.close(); deleteMember(info.userName, info.userId)}} />}
                           </MenuItem>
                       })}   
                     </Menu>

@@ -55,7 +55,7 @@ const StyledMenu = styled((props) => (
 
 
 
-export default function MoreBtn({ editData, type, comments, setComments, setOpenForm, setContent, setUpdateFlag, addMember, glannerInfo}) {
+export default function MoreBtn({ editData, commentData, commentUserName, type, comments, setComments, setOpenForm, setContent, setUpdateFlag, addMember, glannerInfo}) {
   const navigate = useNavigate();
   const { pathname } = useLocation();  
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -88,7 +88,6 @@ export default function MoreBtn({ editData, type, comments, setComments, setOpen
 
 // 게시글 && 댓글 삭제
   const deleteItem = (item, type) => {
-    console.log(type)
     const ok = window.confirm('삭제하겠습니까?')
     if (ok) {
       // 게시글인 경우
@@ -157,28 +156,43 @@ export default function MoreBtn({ editData, type, comments, setComments, setOpen
       setContent(item.content);
     }
   }
-  const getNewGlannerInfo = () => {
-    // glanner에 포함된 유저인지 확인 용도
-    axios(`/api/group-board/glanner/${id}`)
-      .then(res => { 
-        setHostMail(res.data.hostEmail)       
-        res.data.membersInfos.map(info => {
-          if (info.userEmail === editData.userEmail) {
-            setAdded(false)
-            return
-          }
-        })
-      })
-      .catch(err => console.log(err))
-  }
+  // const getNewGlannerInfo = () => {
+  //   // glanner에 포함된 유저인지 확인 용도
+  //   axios(`/api/group-board/glanner/${id}`)
+  //     .then(res => { 
+  //       setHostMail(res.data.hostEmail)       
+  //       res.data.membersInfos.map(info => {
+  //         if (info.userEmail === editData.userEmail) {
+  //           setAdded(false)
+  //           return
+  //         }
+  //       })
+  //     })
+  //     .catch(err => console.log(err))
+  // }
 
   useEffect(() => {
-    if (path.includes('/group/')) {
-      getNewGlannerInfo()
-    }
-    return () => setAdded(false)
-  }, [glannerInfo])
 
+    if (commentData && path.includes('group-board')) {
+      // getNewGlannerInfo()
+      for (let i = 0; i < glannerInfo.membersInfos.length; i++) {
+        // console.log(glannerInfo.membersInfos[i].userEmail, editData.userEmail, glannerInfo.membersInfos[i].userEmail === editData.userEmail)
+        if (glannerInfo.membersInfos[i].userEmail === commentData.userEmail) {
+          setAdded(false)
+          break
+        }
+      }
+      // glannerInfo.membersInfos.map(info => {
+      //   
+      //   if (info.userEmail === editData.userEmail) {
+      //     setAdded(false)
+      //   }
+      // })
+      // console.log('끝')
+    }
+    // return () => setAdded(false)
+  }, [glannerInfo])
+  // console.log('이거다', commentData)
   return (
     <div>
       <IconButton
@@ -204,8 +218,8 @@ export default function MoreBtn({ editData, type, comments, setComments, setOpen
         onClose={handleClose}
       > 
 
-        {hostMail === authData.sub && authData.sub !== editData.userEmail && type.includes('comment') && added && 
-        <MenuItem onClick={() => {addMember(editData.userEmail); setAnchorEl(null)}} disableRipple>
+        {type.includes('comment') && added && 
+        <MenuItem onClick={() => {addMember(commentData.userEmail); setAnchorEl(null)}} disableRipple>
           <AddCircleIcon />
           글래너에 추가
         </MenuItem>}    

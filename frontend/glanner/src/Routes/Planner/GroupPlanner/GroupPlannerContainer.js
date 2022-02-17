@@ -134,8 +134,30 @@ export default function GroupPlannerContainer() {
     const token = localStorage.getItem('token');
     const decoded = jwt_decode(token);
     setAuthData(decoded)
+
+    axios
+      .get(`/api/glanner/${groupPlannerId.id}/${date}`)
+      .then((res) => {
+        console.log(res.data);
+        setEventList(res.data);
+      })
+      .catch(err => console.log(err))
+    axios(`/api/glanner-board/${id}/0/3`)
+      .then(res => {
+        setLatestBoard(res.data)
+      })
+      .catch(err => console.log(err))
+    axios(`/api/glanner/${id}/${Moment().format('YYYY-MM-DD')}`)
+      .then(res => {
+        setlatestPlan(res.data)
+      })
+      .catch(err => console.log(err))
+    axios(`/api/glanner/${id}`)
+      .then(res => {
+        setGlannerInfo(res.data)
+      })
+      .catch(err => console.log(err))
   }, [id, date])
-  
 
     // 멤버 삭제
   const deleteMember = (user, userId) => {

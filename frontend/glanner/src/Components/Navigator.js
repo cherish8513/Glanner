@@ -24,8 +24,6 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ReactComponent as Logout } from "../assets/arrow-right-from-bracket-solid.svg";
 import logo from "../assets/glannerLogo1.png";
-import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
 // import { addGlanner, onClickPlanner, removeGlanner } from "../redux/planners";
 // import { deleteGlanner, fetchGlanner } from "../redux/apiCalls";
 import { Typography } from "@mui/material";
@@ -144,7 +142,7 @@ function Navigator(props) {
       ],
     },
   ];
-
+  const [nowIdx, setNowIdx] = useState(-1);
   const [groupPList, setGroupPList] = useState([]);
   const decodeEmail = jwt_decode(localStorage.getItem("token")).sub;
 
@@ -163,7 +161,7 @@ function Navigator(props) {
   React.useEffect(() => {
     fetchGroupList();
 
-  }, []);
+  }, [groupPList]);
   return (
     <Drawer variant="persistent" {...other} open={true} varient="no">
       <List disablePadding sx={{ display: "inline-block" }}>
@@ -206,7 +204,10 @@ function Navigator(props) {
             <ListItem key={decodeEmail} sx={{ pb: 0 }}>
               <GroupPlannerList>
                 <Link to={`/`}>
-                  <ListItemButton selected={true} sx={item} id={decodeEmail}>
+                  <ListItemButton selected={decodeEmail === nowIdx} sx={item} id={decodeEmail} onClick={(e) => {
+                    setNowIdx(e.currentTarget.id)
+                    
+                    }}>
                     <ListItemText style={{ fontFamily: "Noto Sans KR" }}>
                       <FontAwesomeIcon
                         icon={faCircle}
@@ -221,6 +222,19 @@ function Navigator(props) {
                       >
                         {String(decodeEmail).split("@")[0]}의 플래너
                       </Typography>
+                      {decodeEmail === nowIdx ? (
+                            <FontAwesomeIcon
+                              icon={faAngleRight}
+                              className="arrowRight"
+                              style={{
+                                width: 15 + "px",
+                                color: "#959595",
+                                marginLeft: 10 + "px",
+                              }}
+                            />
+                          ) : (
+                            ""
+                          )}
                     </ListItemText>
                   </ListItemButton>
                 </Link>
@@ -269,6 +283,10 @@ function Navigator(props) {
                       //     />
                       //   );
                       // }}
+                      onClick={(e) => {
+                        setNowIdx(Number(e.currentTarget.id))                        
+                      }}
+                      selected={glannerId === nowIdx}
                       sx={item}
                       id={glannerId}
                     >
@@ -287,7 +305,8 @@ function Navigator(props) {
                         >
                           {glannerName}
                         </Typography>
-                        {/* {active ? (
+                        
+                        {glannerId === nowIdx ? (
                             <FontAwesomeIcon
                               icon={faAngleRight}
                               className="arrowRight"
@@ -299,7 +318,7 @@ function Navigator(props) {
                             />
                           ) : (
                             ""
-                          )} */}
+                          )}
                       </ListItemText>
                     </ListItemButton>
                   </Link>
@@ -323,7 +342,7 @@ function Navigator(props) {
               <ListItem key={childId} sx={{ py: 0, px: "5px" }}>
                 {/* 게시판 종류에 따라 링크 나뉘는 분기 부분 */}
                 <Link to={`/community/${type}`}>
-                  <ListItemButton sx={groupItem}>
+                  <ListItemButton sx={groupItem} onClick={(e) => setNowIdx(e.currentTarget.id)}>
                     <ListItemText>
                       <Typography style={{ fontFamily: "Noto Sans KR" }}>
                         {icon}

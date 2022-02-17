@@ -8,7 +8,7 @@ export const plannerSlice = createSlice({
             name: "내 플래너",
             children: [
               { 
-                plannerId: 1,
+                plannerId: -1,
                 plannerName: "내 플래너",
                 active: true,
               },              
@@ -50,13 +50,13 @@ export const plannerSlice = createSlice({
               } else {
                 targetPlanner.active = false;
               }
-            console.log(current(state.plannerList))
+            // console.log(current(state.plannerList))
             });
           });
         },
         checkUser: (state, action) => {
           state.userList = action.payload
-          console.log(current(state.userList))
+          // console.log(current(state.userList))
         }, 
     }
 

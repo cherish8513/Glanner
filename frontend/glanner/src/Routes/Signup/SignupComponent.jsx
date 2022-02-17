@@ -12,6 +12,10 @@ import axios from 'axios';
 const SignupComponent = ({signupPage, setSignupPage}) => {
   const { register, watch, formState: {errors}, handleSubmit } = useForm();
   const [consent, setConsent] = useState(false);
+
+  const [isSent, setIsSent] = useState(false);
+  const [time, setTime] = useState(299)
+  const [verification, setVerification] = useState("");
   const password = useRef();
   password.current = watch("password");
   const onSubmit = (data) => {
@@ -28,27 +32,26 @@ const SignupComponent = ({signupPage, setSignupPage}) => {
 
     axios(`/api/user`, {method: 'POST', data: joinData})
       .then(res => {
-        console.log(res.data)
+        // console.log(res.data)
         setSignupPage(!signupPage)
       })
       .catch(err => {
         console.log(err)
       })    
   }
-  // const handleSubmit = (event) => {
-  //   event.preventDefault();
-    
-  //   const data = new FormData(event.currentTarget);
-  //   const authData = {
-  //     name: data.get('name'),
-  //     email: data.get('email'),
-  //     password: data.get('password'),
-  //     passwordConfirm: data.get('passwordConfirm'),
-  //     phone: data.get('phone'),
-  //   };
-  //   console.log(authData)
-  // };  
-  
+  const onVerificate = () => {
+    localStorage.setItem('expiredAt', new Date().getTime())
+
+  }
+  React.useEffect(() => {
+    if (time > 0) {
+      const Counter = setInterval(() => {
+        const gap = Math.floor((new Date(localStorage.getItem('expireAt')).getTime() - new Date().getTime()) / 1000)
+        setTime(gap)
+      }, 1000)
+      return () => clearInterval(Counter)
+    }
+  }, [localStorage.getItem('expireAt'), time])
   return (
       <Grid container component="main" sx={{ height: '100vh', width: '100%'}}>
         <CssBaseline />
@@ -172,14 +175,15 @@ const SignupComponent = ({signupPage, setSignupPage}) => {
               <Grid container direction='row' alignItems='center' sx={{ mt: '1em'}}>
 
                 <Grid item xs={4}>
-                  <SignupPageLabel htmlFor='phone'>연락처</SignupPageLabel>
+                  <SignupPageLabel htmlFor='phone'>휴대전화</SignupPageLabel>
                 </Grid>
-                <Grid item xs={4.5}>
-                  <SignupInput                    
+                <Grid item xs={4}>
+                  <SignupInput
+                    InputProps={{readOnly: isSent}}                    
                     required
                     fullWidth
                     id="phone"
-                    // placeholder='ex. 01012341234'
+                    placeholder='숫자만 입력'
                     name="phone"
                     // autoComplete="email"
                     autoFocus
@@ -190,15 +194,50 @@ const SignupComponent = ({signupPage, setSignupPage}) => {
                 
                 {/* 추후 인증 과정에서 로딩중 버튼 고민 중 */}
                 {/* <LoadingButton loading variant="outlined">Submit</LoadingButton> */}  
-                <SignupPageButton sx={{ ml: 1.3 }}>
-                  인증
+                <SignupPageButton sx={{ ml: 1.3 }} onClick={onVerificate}>
+                  {!isSent ? <>인증</> : <>재전송</> }
                 </SignupPageButton>
                   
                 
               {errors.phone && errors.phone.type === "required" && <p className='error-text'>연락처를 입력해주세요</p>}
               {errors.phone && errors.phone.type === "pattern" && <p className='error-text'>유효한 연락처가 아닙니다</p>}
               </Grid>
-              
+
+              {/* 인증번호 폼 */}
+              {/* <Grid container direction='row' alignItems='center' sx={{ mt: '1em'}}>
+                  <Grid item xs={4} >
+                    <SignupPageLabel htmlFor='passwordConfirm' >인증번호</SignupPageLabel>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <SignupInput
+                      required
+                      fullWidth
+                      name="verification"
+                      type="text"
+                      id="verification"
+                      autoComplete="verification"
+                      value={verification}
+                      onChange={e => {
+                        console.log(e.target.value)
+                        setVerification(e.target.value)
+                      }}
+                      placeholder="숫자 6자리 입력"
+                      InputProps={{
+                        endAdornment: (
+                          <Box>
+                            {time}
+                          </Box>
+                        ),
+                      }}
+                    />
+                  </Grid>
+                  <SignupPageButton sx={{ ml: 1.3 }}>
+                   확인
+                  </SignupPageButton>
+                  {errors.verification && errors.password_confirm.type === "required" && <p className='error-text'>비밀번호를 입력해주세요</p>}
+                  {errors.verification && errors.password_confirm.type === "validate" && <p className='error-text'>비밀번호가 일치하지 않습니다</p>}
+                </Grid> */}
+                      
 
               <Grid container sx={{mt: '2em'}}>
 
@@ -212,7 +251,7 @@ const SignupComponent = ({signupPage, setSignupPage}) => {
                         onClick={() => {
                           if (consent) setConsent(false)
                           else setConsent(true)
-                          console.log(consent)
+                          // console.log(consent)
                         }} 
                         value="consent"                         
                         icon={<RadioButtonUncheckedIcon />}

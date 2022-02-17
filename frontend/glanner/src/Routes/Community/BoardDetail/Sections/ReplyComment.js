@@ -5,7 +5,7 @@ import { SingleComment } from "./SingleComment";
 
 const useStyles = makeStyles(boardStyles);
 
-export const ReplyComment = ({commentList, parentCommentId, addCommentLike, setComments, updateComment}) => {
+export const ReplyComment = ({commentList, parentCommentId, addCommentLike, setComments, updateComment, glannerInfo, addMember}) => {
   const classes = useStyles();
 
   return (
@@ -22,6 +22,8 @@ export const ReplyComment = ({commentList, parentCommentId, addCommentLike, setC
               setComments={setComments}
               updateComment={updateComment}
               key={comment.commentId}
+              glannerInfo={glannerInfo}
+              addMember={addMember}
             />            
           )
         }

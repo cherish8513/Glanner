@@ -14,7 +14,7 @@ export default function FindGroupContainer () {
       fetchGroupBoardList()
     }, [page])
     const fetchGroupBoardList = () => {
-      axios(`/api/group-board/${page}/4`, { method: 'GET' })
+      axios(`/api/group-board/${page}/6`, { method: 'GET' })
       .then(res => {
         setGroupBoardList(res.data)
         setLoading(false)
@@ -23,10 +23,10 @@ export default function FindGroupContainer () {
       .catch(err => console.log(err))
     }
     const handleChangePage = newPage => {
-      setPage((newPage - 1) * 4)
+      setPage((newPage - 1) * 6)
     }
     const handleInput = (e) => {
-      console.log(e.target.value)
+      // console.log(e.target.value)
       setInputData(e.target.value)
     }
 

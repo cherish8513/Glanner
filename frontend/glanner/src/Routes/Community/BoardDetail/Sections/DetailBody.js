@@ -18,10 +18,13 @@ export const DetailBody = ({ post, addLike, postLikeCount, glannerInfo }) => {
   const classes = useStyles();
   const { pathname } = useLocation();
   const [groupPage, setGroupPage] = useState(false);
-
+  const [noticePage, setNoticePage] = useState(false);
   useEffect(() => {
     if (pathname.includes('/group/')) {
       setGroupPage(true)
+    }
+    if (pathname.includes('/notice/')) {
+      setNoticePage(true)
     }
   }, [pathname])
   return (
@@ -81,7 +84,7 @@ export const DetailBody = ({ post, addLike, postLikeCount, glannerInfo }) => {
         <span className={classes.botText}>조회수 {post.count}{postLikeCount ? <>{`, 좋아요 ${postLikeCount}`}</>: null } </span>
         
         <div style={{height: 40}}>
-          {!groupPage &&
+          {!groupPage && !noticePage &&
             <>
               <IconButton onClick={addLike}>
                 <FavoriteIcon />

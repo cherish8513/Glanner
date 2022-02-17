@@ -43,7 +43,7 @@ export default function GroupPlannerContainer () {
         axios(`/api/glanner-board/${id}/${page}/5`)
             .then(res => {
                 setBoardList((prev) => {
-                    console.log([...prev, ...res.data])
+                    // console.log([...prev, ...res.data])
                     return [...prev, ...res.data]
                 })
                 setLoading(false)
@@ -70,7 +70,7 @@ export default function GroupPlannerContainer () {
         axios(`/api/glanner-board`,
             {method: 'POST', data: {glannerId: Number(id), files: [], title: boardData.boardTitle, content: boardData.boardContent}})
             .then(res => {
-                console.log('작성 완료!')                
+                // console.log('작성 완료!')                
                 refreshData(page)
             })
             .catch(err => console.log(err))
