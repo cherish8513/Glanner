@@ -239,8 +239,9 @@ export default function EventModal({
     } else if (specificEvent == null) {
       // 새로운 일정 추가
       if (type === "groupPlanner") {
+        const newData = {...data, glannerId: groupPlannerId}
         axios
-          .post("/api/glanner/work", data)
+          .post("/api/glanner/work", newData)
           .then((res) => {
             alert("작성 성공!");
             if (handleEvent) {
