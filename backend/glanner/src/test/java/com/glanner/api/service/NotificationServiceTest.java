@@ -39,6 +39,7 @@ import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -124,47 +125,6 @@ class NotificationServiceTest {
             throw new SMSNotSentException();
         }
         //then
-    }
-
-    @Test
-    public void testSendScheduledSms() throws Exception{
-        //given
-        LocalDateTime now = LocalDateTime.now();
-
-        addWorks(now.plusMinutes(1), now.plusHours(1), now);            // 알림 O
-        addWorks(now.plusMinutes(29), now.plusHours(1), now.minusMinutes(1)); // 알림 O
-        addWorks(now.plusMinutes(40), now.plusHours(1), now.plusMinutes(10)); // 알림 X
-
-        //when
-        List<FindWorkByTimeResDto> resDtos = notificationQueryRepository.findScheduleWork();
-
-        for(FindWorkByTimeResDto resDto:resDtos){
-            /* 메세지 보내기 */
-            List<SendSmsReqDto> messages = new ArrayList<>();
-            messages.add(new SendSmsReqDto(resDto.getPhoneNumber().replace("-",""), makeContent(resDto.getTitle())));
-            try { sendSmsServer(messages); }
-            catch (Exception e) { throw new SMSNotSentException(); }
-
-            /* 알림 보내기 */
-            User findUser = userRepository.findById(resDto.getUserId()).orElseThrow(UserNotFoundException::new);
-            DailyWorkSchedule schedule = dailyWorkScheduleRepository.findById(resDto.getDailyWorkId()).orElseThrow(DailyWorkNotFoundException::new);
-
-            Notification notification = Notification.builder()
-                    .user(findUser)
-                    .type(NotificationType.DAILY_WORK_SCHEDULE)
-                    .typeId(resDto.getDailyWorkId())
-                    .content(makeContent(schedule.getTitle()))
-                    .confirmation(ConfirmStatus.STILL_NOT_CONFIRMED)
-                    .build();
-
-            findUser.addNotification(notification);
-            schedule.confirm();
-        }
-        //then
-        User findUser = userRepository.findByEmail("cherish8513@naver.com").orElseThrow(UserNotFoundException::new);
-        assertThat(findUser.getNotifications().size()).isEqualTo(2);
-        assertThat(findUser.getNotifications().get(0).getType()).isEqualTo(NotificationType.DAILY_WORK_SCHEDULE);
-        assertThat(findUser.getNotifications().get(0).getTypeId()).isEqualTo(resDtos.get(0).getDailyWorkId());
     }
 
     private String makeContent(String title) {

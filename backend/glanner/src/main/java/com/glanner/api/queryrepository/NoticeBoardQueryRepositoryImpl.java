@@ -1,6 +1,7 @@
 package com.glanner.api.queryrepository;
 
 import com.glanner.api.dto.response.FindNoticeBoardResDto;
+import com.glanner.core.domain.board.QComment;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.glanner.core.domain.board.QComment.*;
 import static com.glanner.core.domain.board.QNoticeBoard.noticeBoard;
+import static com.glanner.core.domain.user.QUser.user;
 
 @Repository
 @RequiredArgsConstructor
@@ -23,14 +26,15 @@ public class NoticeBoardQueryRepositoryImpl implements NoticeBoardQueryRepositor
         return query
                 .select(Projections.constructor(FindNoticeBoardResDto.class,
                         noticeBoard.id,
-                        noticeBoard.user.name,
-                        noticeBoard.user.email,
+                        user.name,
+                        user.email,
                         noticeBoard.title,
                         noticeBoard.content,
                         noticeBoard.count,
                         noticeBoard.createdDate,
                         noticeBoard.comments.size()))
                 .from(noticeBoard)
+                .join(noticeBoard.user, user)
                 .orderBy(noticeBoard.createdDate.desc())
                 .offset(offset)
                 .limit(limit)
@@ -42,14 +46,15 @@ public class NoticeBoardQueryRepositoryImpl implements NoticeBoardQueryRepositor
         return query
                 .select(Projections.constructor(FindNoticeBoardResDto.class,
                         noticeBoard.id,
-                        noticeBoard.user.name,
-                        noticeBoard.user.email,
+                        user.name,
+                        user.email,
                         noticeBoard.title,
                         noticeBoard.content,
                         noticeBoard.count,
                         noticeBoard.createdDate,
                         noticeBoard.comments.size()))
                 .from(noticeBoard)
+                .join(noticeBoard.user, user)
                 .where(noticeBoard.title.contains(keyword)
                         .or(noticeBoard.content.contains(keyword)))
                 .orderBy(noticeBoard.createdDate.desc())

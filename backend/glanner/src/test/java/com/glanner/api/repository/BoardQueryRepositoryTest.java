@@ -97,7 +97,7 @@ public class BoardQueryRepositoryTest {
         for (int i = 0; i < 4; i++) {
             SaveFreeBoardReqDto boardReqDto = new SaveFreeBoardReqDto("title"+i, "content", new ArrayList<>());
             boardService.saveBoard(userEmail, boardReqDto);
-            Thread.sleep(30);
+            Thread.sleep(10);
         }
 
         //when
@@ -114,7 +114,7 @@ public class BoardQueryRepositoryTest {
         for (int i = 0; i < 4; i++) {
             SaveNoticeBoardReqDto boardReqDto = new SaveNoticeBoardReqDto("title"+i, "content", new ArrayList<>());
             boardService.saveBoard(userEmail, boardReqDto);
-            Thread.sleep(30);
+            Thread.sleep(10);
         }
 
         //when
@@ -122,7 +122,7 @@ public class BoardQueryRepositoryTest {
 
         //then
         assertThat(page.size()).isEqualTo(4);
-        assertThat(page.get(0).getTitle()).isEqualTo("title3");
+        assertThat(page.get(0).getCreatedDate()).isAfter(page.get(3).getCreatedDate());
     }
 
     @Test
@@ -131,6 +131,7 @@ public class BoardQueryRepositoryTest {
         for (int i = 0; i < 4; i++) {
             SaveGroupBoardReqDto boardReqDto = new SaveGroupBoardReqDto("title"+i, "content", new ArrayList<>(), "interests");
             groupBoardService.saveGroupBoard(userEmail, boardReqDto);
+            Thread.sleep(10);
         }
 
         //when
@@ -138,8 +139,7 @@ public class BoardQueryRepositoryTest {
 
         //then
         assertThat(page.size()).isEqualTo(4);
-        assertThat(page.get(0).getTitle()).isEqualTo("title3");
-        assertThat(page.get(0).getUserCount()).isEqualTo(1);
+        assertThat(page.get(0).getCreatedDate()).isAfter(page.get(3).getCreatedDate());
     }
 
     @Test
@@ -157,7 +157,7 @@ public class BoardQueryRepositoryTest {
 
         //then
         assertThat(page.size()).isEqualTo(4);
-        assertThat(page.get(0).getTitle()).isEqualTo("title3");
+        assertThat(page.get(0).getCreatedDate()).isAfter(page.get(3).getCreatedDate());
     }
 
     /**

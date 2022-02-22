@@ -9,7 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.glanner.core.domain.board.QComment.comment;
+import static com.glanner.core.domain.glanner.QGlanner.glanner;
 import static com.glanner.core.domain.glanner.QGroupBoard.groupBoard;
+import static com.glanner.core.domain.glanner.QUserGlanner.userGlanner;
+import static com.glanner.core.domain.user.QUser.user;
 
 @Repository
 @RequiredArgsConstructor
@@ -23,16 +27,18 @@ public class GroupBoardQueryRepositoryImpl implements GroupBoardQueryRepository{
         return query
                 .select(Projections.constructor(FindGroupBoardResDto.class,
                         groupBoard.id,
-                        groupBoard.user.name,
-                        groupBoard.user.email,
+                        user.name,
+                        user.email,
                         groupBoard.title,
                         groupBoard.content,
                         groupBoard.count,
                         groupBoard.createdDate,
                         groupBoard.interests,
                         groupBoard.comments.size(),
-                        groupBoard.glanner.userGlanners.size()))
+                        glanner.userGlanners.size()))
                 .from(groupBoard)
+                .join(groupBoard.user, user)
+                .join(groupBoard.glanner, glanner)
                 .orderBy(groupBoard.createdDate.desc())
                 .offset(offset)
                 .limit(limit)
@@ -44,16 +50,18 @@ public class GroupBoardQueryRepositoryImpl implements GroupBoardQueryRepository{
         return query
                 .select(Projections.constructor(FindGroupBoardResDto.class,
                         groupBoard.id,
-                        groupBoard.user.name,
-                        groupBoard.user.email,
+                        user.name,
+                        user.email,
                         groupBoard.title,
                         groupBoard.content,
                         groupBoard.count,
                         groupBoard.createdDate,
                         groupBoard.interests,
                         groupBoard.comments.size(),
-                        groupBoard.glanner.userGlanners.size()))
+                        glanner.userGlanners.size()))
                 .from(groupBoard)
+                .join(groupBoard.user, user)
+                .join(groupBoard.glanner, glanner)
                 .where(groupBoard.title.contains(keyword)
                         .or(groupBoard.content.contains(keyword)))
                 .orderBy(groupBoard.createdDate.desc())
@@ -67,15 +75,17 @@ public class GroupBoardQueryRepositoryImpl implements GroupBoardQueryRepository{
         return query
                 .select(Projections.constructor(FindGroupBoardResDto.class,
                         groupBoard.id,
-                        groupBoard.user.name,
+                        user.name,
                         groupBoard.title,
                         groupBoard.content,
                         groupBoard.count,
                         groupBoard.createdDate,
                         groupBoard.interests,
                         groupBoard.comments.size(),
-                        groupBoard.glanner.userGlanners.size()))
+                        glanner.userGlanners.size()))
                 .from(groupBoard)
+                .join(groupBoard.user, user)
+                .join(groupBoard.glanner, glanner)
                 .where(groupBoard.interests.contains(interest))
                 .orderBy(groupBoard.createdDate.desc())
                 .offset(offset)

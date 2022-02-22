@@ -18,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -73,43 +74,6 @@ class NotificationQueryRepositoryImplTest {
         assertThat(findNotifications.size()).isEqualTo(2);
         assertThat(findNotifications.get(0).getTypeId()).isEqualTo(user.getNotifications().get(0).getTypeId());
         assertThat(findNotifications.get(0).getType()).isEqualTo(NotificationType.DAILY_WORK_SCHEDULE);
-    }
-
-    @Test
-    public void testFindValidScheduleWork() throws Exception{
-        //given
-        LocalDateTime now = LocalDateTime.now();
-
-        addWorks(now.plusMinutes(1), now.plusHours(1), now);            // 알림 O
-        addWorks(now.plusMinutes(29), now.plusHours(1), now.minusMinutes(1)); // 알림 O
-        addWorks(now.plusMinutes(40), now.plusHours(1), now.plusMinutes(10)); // 알림 X
-
-        //when
-        List<FindWorkByTimeResDto> findWorks = notificationQueryRepository.findScheduleWork();
-
-        //then
-        assertThat(dailyWorkScheduleRepository.count()).isEqualTo(3);
-        assertThat(findWorks.size()).isEqualTo(2);
-        assertThat(findWorks.get(0).getPhoneNumber()).isEqualTo("010-6575-2938");
-        assertThat(findWorks.get(0).getTitle()).isEqualTo("work");
-    }
-
-    @Test
-    public void testFindValidGlannerWork() throws Exception{
-        //given
-        Long savedGlannerId = createGlanner();
-        LocalDateTime now = LocalDateTime.now();
-
-        addGlannerWorks(savedGlannerId, now.plusMinutes(1), now.plusHours(1), now);            // 알림 O
-        addGlannerWorks(savedGlannerId, now.plusMinutes(30), now.plusHours(1), now.plusMinutes(15)); // 알림 X
-        addGlannerWorks(savedGlannerId, now.plusMinutes(40), now.plusHours(1), now.plusMinutes(10)); // 알림 X
-
-        //when
-        List<FindWorkByTimeResDto> findWorks = notificationQueryRepository.findGlannerWork();
-
-        //then
-        assertThat(findWorks.size()).isEqualTo(2);
-        assertThat(findWorks.get(0).getTitle()).isEqualTo("work");
     }
 
     public void createUser(){
@@ -199,17 +163,5 @@ class NotificationQueryRepositoryImplTest {
 
         return savedGlanner.getId();
     }
-
-    private void addGlannerWorks(Long savedGlannerId, LocalDateTime startDate, LocalDateTime endDate, LocalDateTime alarmDate) {
-        Glanner glanner = glannerRepository.findRealById(savedGlannerId).orElseThrow(IllegalArgumentException::new);
-        glanner.addDailyWork(DailyWorkGlanner.builder()
-                .content("hard")
-                .title("work")
-                .startDate(startDate)
-                .endDate(endDate)
-                .alarmDate(alarmDate)
-                .build());
-    }
-
 
 }

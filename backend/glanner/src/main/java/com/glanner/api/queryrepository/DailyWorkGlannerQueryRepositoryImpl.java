@@ -1,6 +1,8 @@
 package com.glanner.api.queryrepository;
 
 import com.glanner.api.dto.response.FindGlannerWorkResDto;
+import com.glanner.core.domain.glanner.QDailyWorkGlanner;
+import com.glanner.core.domain.glanner.QGlanner;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.glanner.core.domain.glanner.QDailyWorkGlanner.dailyWorkGlanner;
+import static com.glanner.core.domain.glanner.QGlanner.*;
 
 @Repository
 @RequiredArgsConstructor
@@ -30,7 +33,8 @@ public class DailyWorkGlannerQueryRepositoryImpl implements DailyWorkGlannerQuer
                         dailyWorkGlanner.alarmDate))
 
                 .from(dailyWorkGlanner)
-                .where(dailyWorkGlanner.glanner.id.eq(glannerId),
+                .join(dailyWorkGlanner.glanner, glanner)
+                .where(glanner.id.eq(glannerId),
                         dailyWorkGlanner.startDate.after(startDate),
                         dailyWorkGlanner.startDate.before(endDate))
                 .orderBy(dailyWorkGlanner.startDate.desc())

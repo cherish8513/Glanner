@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static com.glanner.core.domain.board.QFreeBoard.freeBoard;
+import static com.glanner.core.domain.user.QUser.user;
 
 @Repository
 @RequiredArgsConstructor
@@ -23,8 +24,8 @@ public class FreeBoardQueryRepositoryImpl implements FreeBoardQueryRepository{
         return query
                 .select(Projections.constructor(FindFreeBoardResDto.class,
                         freeBoard.id,
-                        freeBoard.user.name,
-                        freeBoard.user.email,
+                        user.name,
+                        user.email,
                         freeBoard.title,
                         freeBoard.content,
                         freeBoard.count,
@@ -33,6 +34,7 @@ public class FreeBoardQueryRepositoryImpl implements FreeBoardQueryRepository{
                         freeBoard.dislikeCount,
                         freeBoard.comments.size()))
                 .from(freeBoard)
+                .join(freeBoard.user, user)
                 .orderBy(freeBoard.createdDate.desc())
                 .offset(offset)
                 .limit(limit)
@@ -44,8 +46,8 @@ public class FreeBoardQueryRepositoryImpl implements FreeBoardQueryRepository{
         return query
                 .select(Projections.constructor(FindFreeBoardResDto.class,
                         freeBoard.id,
-                        freeBoard.user.name,
-                        freeBoard.user.email,
+                        user.name,
+                        user.email,
                         freeBoard.title,
                         freeBoard.content,
                         freeBoard.count,
@@ -54,6 +56,7 @@ public class FreeBoardQueryRepositoryImpl implements FreeBoardQueryRepository{
                         freeBoard.dislikeCount,
                         freeBoard.comments.size()))
                 .from(freeBoard)
+                .join(freeBoard.user, user)
                 .where(freeBoard.title.contains(keyword)
                         .or(freeBoard.content.contains(keyword)))
                 .orderBy(freeBoard.createdDate.desc())

@@ -34,7 +34,7 @@ public class GlannerQueryRepositoryImpl implements GlannerQueryRepository{
                         dailyWorkGlanner.endDate,
                         dailyWorkGlanner.alarmDate))
                 .from(dailyWorkGlanner)
-                .where(dailyWorkGlanner.glanner.id.eq(id),
+                .where(glanner.id.eq(id),
                         dailyWorkGlanner.startDate.after(dateTimeStart),
                         dailyWorkGlanner.startDate.before(dateTimeEnd))
                 .fetch();
@@ -50,7 +50,7 @@ public class GlannerQueryRepositoryImpl implements GlannerQueryRepository{
                 .from(glanner)
                 .join(glanner.userGlanners, userGlanner)
                 .join(glanner.host, user)
-                .where(userGlanner.user.id.eq(userId))
+                .where(user.id.eq(userId))
                 .fetch();
     }
 

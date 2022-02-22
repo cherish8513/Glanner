@@ -1,6 +1,7 @@
 package com.glanner.api.queryrepository;
 
 import com.glanner.api.dto.response.FindGlannerBoardResDto;
+import com.glanner.core.domain.glanner.QGlanner;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.glanner.core.domain.glanner.QGlanner.*;
 import static com.glanner.core.domain.glanner.QGlannerBoard.glannerBoard;
+import static com.glanner.core.domain.user.QUser.user;
 
 @Repository
 @RequiredArgsConstructor
@@ -23,15 +26,17 @@ public class GlannerBoardQueryRepositoryImpl implements GlannerBoardQueryReposit
         return query
                 .select(Projections.constructor(FindGlannerBoardResDto.class,
                         glannerBoard.id,
-                        glannerBoard.user.name,
-                        glannerBoard.user.email,
+                        user.name,
+                        user.email,
                         glannerBoard.title,
                         glannerBoard.content,
                         glannerBoard.count,
                         glannerBoard.createdDate,
                         glannerBoard.comments.size()))
                 .from(glannerBoard)
-                .where(glannerBoard.glanner.id.eq(glannerId))
+                .join(glannerBoard.user, user)
+                .join(glannerBoard.glanner, glanner)
+                .where(glanner.id.eq(glannerId))
                 .orderBy(glannerBoard.createdDate.desc())
                 .offset(offset)
                 .limit(limit)
@@ -43,15 +48,17 @@ public class GlannerBoardQueryRepositoryImpl implements GlannerBoardQueryReposit
         return query
                 .select(Projections.constructor(FindGlannerBoardResDto.class,
                         glannerBoard.id,
-                        glannerBoard.user.name,
-                        glannerBoard.user.email,
+                        user.name,
+                        user.email,
                         glannerBoard.title,
                         glannerBoard.content,
                         glannerBoard.count,
                         glannerBoard.createdDate,
                         glannerBoard.comments.size()))
                 .from(glannerBoard)
-                .where(glannerBoard.glanner.id.eq(glannerId)
+                .join(glannerBoard.user, user)
+                .join(glannerBoard.glanner, glanner)
+                .where(glanner.id.eq(glannerId)
                         .and((glannerBoard.title.contains(keyword).or(glannerBoard.content.contains(keyword)))))
                 .orderBy(glannerBoard.createdDate.desc())
                 .offset(offset)

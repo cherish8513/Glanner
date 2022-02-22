@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.glanner.core.domain.user.QDailyWorkSchedule.dailyWorkSchedule;
+import static com.glanner.core.domain.user.QSchedule.schedule;
 import static com.glanner.core.domain.user.QUser.user;
 
 
@@ -47,7 +48,7 @@ public class UserQueryRepositoryImpl implements UserQueryRepository{
                         dailyWorkSchedule.endDate,
                         dailyWorkSchedule.alarmDate))
                 .from(dailyWorkSchedule)
-                .where(dailyWorkSchedule.schedule.id.eq(scheduleId),
+                .where(schedule.id.eq(scheduleId),
                         dailyWorkSchedule.startDate.after(start),
                         dailyWorkSchedule.startDate.before(end))
                 .fetch();
