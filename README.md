@@ -37,9 +37,7 @@
 <img src="https://img.shields.io/badge/-Jira-0052CC?style=flat-square&logo=jira&logoColor=black"/>
 
 #### Development methodology
-<img src="https://img.shields.io/badge/-Doamin%20Driven%20Desigin-181717?style=flat-square"/> <img src="https://img.shields.io/badge/-SOLID-181717?style=flat-square"/>
-<img src="https://img.shields.io/badge/-Test%20Driven%20Design-181717?style=flat-square"/>
-<img src="https://img.shields.io/badge/-Agile-181717?style=flat-square"/>
+<img src="https://img.shields.io/badge/-Doamin%20Driven%20Desigin-181717?style=flat-square"/> <img src="https://img.shields.io/badge/-SOLID-181717?style=flat-square"/> <img src="https://img.shields.io/badge/-Agile-181717?style=flat-square"/>
 
 ## 🌏Distribution flow
 ![FLOW](https://raw.githubusercontent.com/johnna963/UseImg/main/flow.png)
